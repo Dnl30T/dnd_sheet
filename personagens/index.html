@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personagem D&D - Ordem Futurista</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sideral': '#1A1A1A',
+                        'eletrico': '#4A90E2',
+                        'roxo': '#6B73FF',
+                        'esmeralda': '#2ECC71',
+                        'grafite': '#404040',
+                        'prata': '#C0C0C0',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Loading -->
+        <div id="loading" class="text-center py-20">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-eletrico mx-auto mb-4"></div>
+            <p class="text-gray-600">Carregando personagem...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="hidden text-center py-20">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+                <h2 class="text-xl font-semibold text-red-800 mb-4">Personagem não encontrado</h2>
+                <p class="text-red-600 mb-6" id="error-message">O personagem solicitado não foi encontrado em nossa base de dados.</p>
+                <a href="../index.html" class="bg-eletrico text-white px-6 py-3 rounded-md hover:bg-blue-600 transition-colors">
+                    Criar Novo Personagem
+                </a>
+            </div>
+        </div>
+
+        <!-- Character Display -->
+        <div id="character-display" class="hidden">
+            <!-- Header com info do personagem -->
+            <header class="text-center mb-8 p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <a href="../index.html" class="text-eletrico hover:text-blue-600 transition-colors">
+                        ← Voltar
+                    </a>
+                    <button id="edit-character" class="bg-eletrico text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+                        Editar Personagem
+                    </button>
+                </div>
+                <h1 id="character-title" class="text-3xl font-bold text-gray-800 mb-2 tracking-wide"></h1>
+                <div class="text-gray-600 text-sm font-medium uppercase tracking-widest">ORDEM FUTURISTA - SISTEMA D&D 5E</div>
+                <div class="text-xs text-gray-500 mt-2">
+                    Última atualização: <span id="last-updated"></span>
+                </div>
+            </header>
+
+            <!-- Conteúdo do personagem será carregado aqui -->
+            <div id="character-content">
+                <!-- O conteúdo será preenchido dinamicamente -->
+            </div>
+
+            <!-- Ações -->
+            <div class="text-center mt-8 space-x-4">
+                <button id="copy-link" class="bg-esmeralda text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors">
+                    Copiar Link
+                </button>
+                <button id="export-pdf" class="bg-roxo text-white px-6 py-3 rounded-md hover:bg-purple-700 transition-colors">
+                    Exportar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            loadCharacterFromUrl();
+        });
+
+        async function loadCharacterFromUrl() {
+            // Extrair nome do personagem da URL
+            const urlPath = window.location.pathname;
+            const characterKey = urlPath.split('/').pop();
+            
+            if (!characterKey || characterKey === 'personagens') {
+                showError('URL inválida');
+                return;
+            }
+
+            try {
+                const result = await FirebaseUtils.loadCharacter(characterKey);
+                
+                if (result.success) {
+                    displayCharacter(result.data);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar personagem:', error);
+                showError('Erro ao carregar personagem');
+            }
+        }
+
+        function displayCharacter(characterData) {
+            $('#loading').hide();
+            
+            // Atualizar título
+            $('#character-title').text(characterData.name || 'Personagem sem nome');
+            
+            // Formatar data de última atualização
+            if (characterData.lastUpdated) {
+                const date = new Date(characterData.lastUpdated);
+                $('#last-updated').text(date.toLocaleString('pt-BR'));
+            }
+
+            // Gerar HTML do personagem (versão somente leitura)
+            const characterHtml = generateCharacterDisplayHtml(characterData);
+            $('#character-content').html(characterHtml);
+            
+            $('#character-display').show();
+            
+            // Setup event listeners
+            setupCharacterDisplayEvents(characterData);
+        }
+
+        function generateCharacterDisplayHtml(data) {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Informações Básicas -->
+                    <section class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-6">
+                            INFORMAÇÕES BÁSICAS
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-2 space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                            Classe & Nível
+                                        </label>
+                                        <div class="bg-gray-50 px-4 py-3 rounded-md text-sm">
+                                            ${data.classLevel || '-'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                            Antecedente
+                                        </label>
+                                        <div class="bg-gray-50 px-4 py-3 rounded-md text-sm">
+                                            ${data.background || '-'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                            Raça
+                                        </label>
+                                        <div class="bg-gray-50 px-4 py-3 rounded-md text-sm">
+                                            ${data.race || '-'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                            Tendência
+                                        </label>
+                                        <div class="bg-gray-50 px-4 py-3 rounded-md text-sm">
+                                            ${getAlignmentText(data.alignment) || '-'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                        Pontos de Experiência
+                                    </label>
+                                    <div class="bg-gray-50 px-4 py-3 rounded-md text-sm">
+                                        ${data.experience || '0'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col items-center lg:items-start">
+                                <label class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                    Foto do Personagem
+                                </label>
+                                <div class="w-32 h-32 border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                                    ${data.photoUrl ? 
+                                        `<img src="${data.photoUrl}" alt="Foto do Personagem" class="w-full h-full object-cover">` : 
+                                        `<div class="text-gray-400 text-center p-2">
+                                            <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="text-xs">Sem foto</span>
+                                        </div>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Atributos -->
+                    <section class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                            ATRIBUTOS
+                        </h2>
+                        
+                        <div class="grid grid-cols-3 gap-4">
+                            ${generateAttributeDisplay('FORÇA', data.strength)}
+                            ${generateAttributeDisplay('DESTREZA', data.dexterity)}
+                            ${generateAttributeDisplay('CONSTITUIÇÃO', data.constitution)}
+                            ${generateAttributeDisplay('INTELIGÊNCIA', data.intelligence)}
+                            ${generateAttributeDisplay('SABEDORIA', data.wisdom)}
+                            ${generateAttributeDisplay('CARISMA', data.charisma)}
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Adicione mais seções conforme necessário -->
+            `;
+        }
+
+        function generateAttributeDisplay(name, value) {
+            const modifier = Math.floor((value - 10) / 2);
+            const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
+            
+            return `
+                <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5">
+                    <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">${name}</div>
+                    <div class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 flex items-center justify-center">
+                        ${value || 8}
+                    </div>
+                    <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center">
+                        ${modifierStr}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getAlignmentText(value) {
+            const alignments = {
+                'LG': 'Leal e Bom',
+                'NG': 'Neutro e Bom',
+                'CG': 'Caótico e Bom',
+                'LN': 'Leal e Neutro',
+                'TN': 'Neutro',
+                'CN': 'Caótico e Neutro',
+                'LE': 'Leal e Mau',
+                'NE': 'Neutro e Mau',
+                'CE': 'Caótico e Mau'
+            };
+            return alignments[value] || value;
+        }
+
+        function setupCharacterDisplayEvents(characterData) {
+            // Editar personagem
+            $('#edit-character').on('click', function() {
+                // Redirecionar para a página de edição com os dados carregados
+                const characterKey = window.location.pathname.split('/').pop();
+                window.location.href = `../index.html?edit=${characterKey}`;
+            });
+
+            // Copiar link
+            $('#copy-link').on('click', function() {
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    alert('Link copiado para a área de transferência!');
+                });
+            });
+
+            // Exportar PDF (implementar conforme necessário)
+            $('#export-pdf').on('click', function() {
+                window.print();
+            });
+        }
+
+        function showError(message) {
+            $('#loading').hide();
+            $('#error-message').text(message);
+            $('#error').show();
+        }
+    </script>
+</body>
+</html>

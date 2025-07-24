@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Personagem D&D - Ordem Futurista</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sideral': '#1A1A1A',
+                        'eletrico': '#4A90E2',
+                        'roxo': '#6B73FF',
+                        'esmeralda': '#2ECC71',
+                        'grafite': '#404040',
+                        'prata': '#C0C0C0',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+        <header class="text-center mb-8 p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 tracking-wide">FICHA DE PERSONAGEM</h1>
+            <div class="text-gray-600 text-sm font-medium uppercase tracking-widest">ORDEM FUTURISTA - SISTEMA D&D 5E
+            </div>
+            
+            <!-- Links de navegação -->
+            <!-- <div class="mt-4 flex justify-center gap-4">
+                <a href="galactic-economy/index.html" 
+                   class="bg-eletrico text-white px-4 py-2 rounded text-sm hover:bg-cyan-600 transition-colors">
+                    🌌 Sistema Econômico Galáctico
+                </a>
+                <a href="gm-screen.html" 
+                   class="bg-purple-600 text-white px-4 py-2 rounded text-sm hover:bg-purple-700 transition-colors">
+                    🎲 Tela do Mestre
+                </a>
+            </div> -->
+            
+            <!-- Botão de teste Firebase (só aparece em modo debug) -->
+            <div id="firebase-debug" class="mt-4 hidden">
+                <button id="test-firebase-btn" class="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition-colors">
+                    🧪 Testar Firebase
+                </button>
+                <span id="firebase-status-text" class="ml-3 text-sm text-gray-600"></span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Informações Básicas -->
+            <section class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors">
+                <h2
+                    class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-6">
+                    INFORMAÇÕES BÁSICAS
+                </h2>
+
+                <!-- Nome do Personagem (largura total) -->
+                <div class="mb-6">
+                    <label for="character-name"
+                        class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                        Nome do Personagem
+                    </label>
+                    <input type="text" id="character-name" placeholder="Digite o nome..."
+                        class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+
+                <!-- Grid principal: Dados à esquerda, Foto à direita -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Coluna de informações -->
+                    <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Classe & Nível -->
+                        <div>
+                            <label for="class-level"
+                                class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                Classe & Nível
+                            </label>
+                            <input type="text" id="class-level" placeholder="Ex: Guerreiro 5"
+                                class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+
+                        <!-- Antecedente -->
+                        <div>
+                            <label for="background"
+                                class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                Antecedente
+                            </label>
+                            <input type="text" id="background" placeholder="Ex: Soldado"
+                                class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+
+                        <!-- Raça -->
+                        <div>
+                            <label for="race"
+                                class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                Raça
+                            </label>
+                            <input type="text" id="race" placeholder="Ex: Humano"
+                                class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+
+                        <!-- Tendência -->
+                        <div>
+                            <label for="alignment"
+                                class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                Tendência
+                            </label>
+                            <select id="alignment"
+                                class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                                <option value="">Selecione...</option>
+                                <option value="LG">Leal e Bom</option>
+                                <option value="NG">Neutro e Bom</option>
+                                <option value="CG">Caótico e Bom</option>
+                                <option value="LN">Leal e Neutro</option>
+                                <option value="TN">Neutro</option>
+                                <option value="CN">Caótico e Neutro</option>
+                                <option value="LE">Leal e Mau</option>
+                                <option value="NE">Neutro e Mau</option>
+                                <option value="CE">Caótico e Mau</option>
+                            </select>
+                        </div>
+
+                        <!-- Pontos de Experiência (largura total dentro do grid) -->
+                        <div class="sm:col-span-2">
+                            <label for="experience"
+                                class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">
+                                Pontos de Experiência
+                            </label>
+                            <input type="number" id="experience" placeholder="0"
+                                class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                    </div>
+
+                    <!-- Coluna de Foto -->
+                    <div class="flex flex-col items-center lg:items-start">
+                        <label for="character-photo-url"
+                            class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2 text-center lg:text-left">
+                            Foto do Personagem
+                        </label>
+                        <div
+                            class="character-photo-container w-32 h-32 border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center hover:border-eletrico transition-colors mb-3">
+                            <img id="character-photo" src="" alt="Foto do Personagem"
+                                class="w-full h-full object-cover hidden">
+                            <div id="photo-placeholder" class="text-gray-400 text-center p-2">
+                                <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-xs">Sem foto</span>
+                            </div>
+                        </div>
+                        <input type="url" id="character-photo-url" placeholder="URL da foto..."
+                            class="w-32 border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    </div>
+                </div>
+                
+                <!-- Competências -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-gray-800 font-semibold text-sm uppercase tracking-wide mb-4">COMPETÊNCIAS</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <label for="inspiration" class="block text-gray-600 text-xs font-medium uppercase tracking-wide mb-2">Inspiração</label>
+                            <input type="checkbox" id="inspiration" class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico cyber-checkbox">
+                        </div>
+                        <div class="text-center">
+                            <label for="proficiency" class="block text-gray-600 text-xs font-medium uppercase tracking-wide mb-2">Bônus de Proficiência</label>
+                            <input type="number" id="proficiency" value="2" min="2" max="6" class="w-16 text-center border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Atributos -->
+            <section class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors">
+                <h2
+                    class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                    ATRIBUTOS</h2>
+
+                <!-- Point Buy System -->
+                <div id="point-buy-system" class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-medium text-gray-700">Sistema Point Buy</label>
+                        <input type="checkbox" id="point-buy-toggle"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico" checked>
+                    </div>
+                    <div id="point-buy-info" class="text-sm text-gray-600">
+                        <span>Pontos Restantes: </span>
+                        <span id="points-remaining" class="font-semibold text-roxo">27</span>
+                        <span class="ml-4 text-xs">(Todos os atributos começam em 8)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="strength">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">FORÇA</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="strength" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="strength-mod">+0</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="dexterity">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">DESTREZA</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="dexterity" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="dexterity-mod">+0</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="constitution">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">CONSTITUIÇÃO</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="constitution" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="constitution-mod">+0</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="intelligence">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">INTELIGÊNCIA</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="intelligence" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="intelligence-mod">+0</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="wisdom">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">SABEDORIA</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="wisdom" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="wisdom-mod">+0</div>
+                    </div>
+                    <div class="flex flex-col items-center bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-eletrico hover:-translate-y-1 hover:shadow-lg transition-all duration-200 attribute-box"
+                        data-attribute="charisma">
+                        <div class="text-gray-600 text-xs font-semibold uppercase tracking-wide mb-3">CARISMA</div>
+                        <input type="number"
+                            class="w-16 h-16 text-center text-xl font-semibold rounded-lg border-2 border-eletrico bg-white mb-3 attribute-value"
+                            id="charisma" min="1" max="20" value="8">
+                        <div class="bg-roxo text-white px-3 py-1 rounded-full text-sm font-semibold min-w-12 text-center modifier"
+                            id="charisma-mod">+0</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            <!-- Testes de Resistência -->
+            <section class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors">
+                <h2
+                    class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                    TESTES DE RESISTÊNCIA</h2>
+                <div class="space-y-2">
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="str-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="str-save">+0</span>
+                        <label class="text-gray-700 font-medium">Força</label>
+                    </div>
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="dex-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="dex-save">+0</span>
+                        <label class="text-gray-700 font-medium">Destreza</label>
+                    </div>
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="con-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="con-save">+0</span>
+                        <label class="text-gray-700 font-medium">Constituição</label>
+                    </div>
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="int-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="int-save">+0</span>
+                        <label class="text-gray-700 font-medium">Inteligência</label>
+                    </div>
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="wis-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="wis-save">+0</span>
+                        <label class="text-gray-700 font-medium">Sabedoria</label>
+                    </div>
+                    <div
+                        class="flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors save-item">
+                        <input type="checkbox" id="cha-save-prof"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 save-bonus"
+                            id="cha-save">+0</span>
+                        <label class="text-gray-700 font-medium">Carisma</label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Perícias -->
+            <section class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors">
+                <h2
+                    class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                    PERÍCIAS</h2>
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="acrobatics">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="acrobatics">+0</span>
+                        <label class="text-gray-700 text-sm">Acrobacia (Des)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="animal-handling">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="animal-handling">+0</span>
+                        <label class="text-gray-700 text-sm">Lidar com Animais (Sab)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="arcana">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="arcana">+0</span>
+                        <label class="text-gray-700 text-sm">Engenharia (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="athletics">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="athletics">+0</span>
+                        <label class="text-gray-700 text-sm">Atletismo (For)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="deception">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="deception">+0</span>
+                        <label class="text-gray-700 text-sm">Enganação (Car)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="history">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="history">+0</span>
+                        <label class="text-gray-700 text-sm">História (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="insight">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="insight">+0</span>
+                        <label class="text-gray-700 text-sm">Intuição (Sab)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="intimidation">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="intimidation">+0</span>
+                        <label class="text-gray-700 text-sm">Intimidação (Car)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="investigation">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="investigation">+0</span>
+                        <label class="text-gray-700 text-sm">Investigação (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="medicine">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="medicine">+0</span>
+                        <label class="text-gray-700 text-sm">Medicina (Sab)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="nature">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="nature">+0</span>
+                        <label class="text-gray-700 text-sm">Biologia (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="perception">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="perception">+0</span>
+                        <label class="text-gray-700 text-sm">Percepção (Sab)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="performance">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="performance">+0</span>
+                        <label class="text-gray-700 text-sm">Atuação (Car)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="persuasion">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="persuasion">+0</span>
+                        <label class="text-gray-700 text-sm">Persuasão (Car)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="religion">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="religion">+0</span>
+                        <label class="text-gray-700 text-sm">Filosofia (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="sleight-of-hand">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="sleight-of-hand">+0</span>
+                        <label class="text-gray-700 text-sm">Prestidigitação (Des)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="stealth">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="stealth">+0</span>
+                        <label class="text-gray-700 text-sm">Furtividade (Des)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="survival">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="survival">+0</span>
+                        <label class="text-gray-700 text-sm">Sobrevivência (Sab)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="technology">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="technology">+0</span>
+                        <label class="text-gray-700 text-sm">Tecnologia (Int)</label>
+                    </div>
+                    <div
+                        class="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100 hover:border-eletrico border border-transparent transition-colors skill-item">
+                        <input type="checkbox"
+                            class="w-4 h-4 text-eletrico border-2 border-gray-300 rounded focus:ring-eletrico prof-checkbox mr-3"
+                            data-skill="computing">
+                        <span
+                            class="w-10 text-center text-roxo font-semibold bg-teal-50 px-2 py-1 rounded text-sm mr-3 skill-bonus"
+                            id="computing">+0</span>
+                        <label class="text-gray-700 text-sm">Computação (Int)</label>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Status de Combate -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                STATUS DE COMBATE</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="text-center">
+                    <label for="armor-class"
+                        class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">Classe de
+                        Armadura</label>
+                    <input type="number" id="armor-class" value="10"
+                        class="w-full h-14 text-xl font-semibold text-center border border-gray-300 rounded-md focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+                <div class="text-center">
+                    <label for="initiative"
+                        class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">Iniciativa</label>
+                    <input type="number" id="initiative" value="0"
+                        class="w-full h-14 text-xl font-semibold text-center border border-gray-300 rounded-md focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+                <div class="text-center">
+                    <label for="speed"
+                        class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">Deslocamento</label>
+                    <input type="text" id="speed" value="30 pés"
+                        class="w-full h-14 text-xl font-semibold text-center border border-gray-300 rounded-md focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="text-center">
+                    <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-3">Pontos de
+                        Vida</label>
+                    <div class="flex gap-3 justify-center flex-wrap">
+                        <input type="number" id="max-hp" placeholder="Máximo"
+                            class="w-20 text-center font-medium border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        <input type="number" id="current-hp" placeholder="Atual"
+                            class="w-20 text-center font-medium border-2 border-esmeralda rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-esmeralda/20 hp-input current">
+                        <input type="number" id="temp-hp" placeholder="Temporários"
+                            class="w-20 text-center font-medium border-2 border-eletrico rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-eletrico/20 hp-input temp">
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide mb-3">Dados de
+                        Vida</label>
+                    <div class="flex gap-3 justify-center flex-wrap">
+                        <input type="text" id="hit-dice-total" placeholder="Total"
+                            class="w-20 text-center font-medium border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        <input type="text" id="hit-dice-used" placeholder="Usados"
+                            class="w-20 text-center font-medium border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                <h3 class="text-gray-800 text-center mb-4 font-semibold">Testes contra a Morte</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center">
+                        <label class="block text-gray-600 text-sm font-medium mb-2">Sucessos</label>
+                        <div class="flex justify-center gap-2">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-esmeralda border-2 border-gray-300 rounded focus:ring-esmeralda death-save success">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-esmeralda border-2 border-gray-300 rounded focus:ring-esmeralda death-save success">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-esmeralda border-2 border-gray-300 rounded focus:ring-esmeralda death-save success">
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <label class="block text-gray-600 text-sm font-medium mb-2">Falhas</label>
+                        <div class="flex justify-center gap-2">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-red-500 border-2 border-gray-300 rounded focus:ring-red-500 death-save failure">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-red-500 border-2 border-gray-300 rounded focus:ring-red-500 death-save failure">
+                            <input type="checkbox"
+                                class="w-5 h-5 text-red-500 border-2 border-gray-300 rounded focus:ring-red-500 death-save failure">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Blight -->
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 blight-indicator">
+                <div class="text-center mb-3">
+                    <label class="block text-gray-600 text-sm font-medium">STATUS BLIGHT</label>
+                    <span id="blight-percentage" class="text-lg font-semibold text-esmeralda">0%</span>
+                </div>
+                <div class="h-3 bg-gray-200 rounded-full overflow-hidden mb-3 blight-bar">
+                    <div class="h-full bg-esmeralda transition-all duration-300 rounded-full blight-fill"
+                        id="blight-fill" style="width: 0%"></div>
+                </div>
+                <input type="range" id="blight-slider" min="0" max="100" value="0"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer blight-slider">
+            </div>
+        </section>
+
+        <!-- Ataques & Magias -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                ATAQUES & MAGIAS</h2>
+            <div class="space-y-3 attacks-list">
+                <div
+                    class="grid grid-cols-3 gap-3 text-center text-gray-600 font-semibold text-sm uppercase tracking-wide border-b-2 border-gray-200 pb-3 mb-2 attack-row header">
+                    <span>Nome</span>
+                    <span>Bônus Ataque</span>
+                    <span>Dano/Tipo</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 attack-row">
+                    <input type="text" placeholder="Nome do ataque"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="+5"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="1d8+3 cortante"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 attack-row">
+                    <input type="text" placeholder="Nome do ataque"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="+5"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="1d8+3 cortante"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 attack-row">
+                    <input type="text" placeholder="Nome do ataque"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="+5"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <input type="text" placeholder="1d8+3 cortante"
+                        class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                </div>
+            </div>
+
+            <button
+                class="bg-esmeralda text-white font-semibold py-3 px-6 rounded-md hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 mt-4 text-sm uppercase tracking-wide add-attack-btn">+
+                ADICIONAR ATAQUE</button>
+        </section>
+
+        <!-- Magias -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                SISTEMA DE MAGIAS</h2>
+            
+            <!-- Atributos de Conjuração -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Atributo de Conjuração</label>
+                    <select id="spellcasting-ability" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        <option value="">Selecione</option>
+                        <option value="int">Inteligência</option>
+                        <option value="wis">Sabedoria</option>
+                        <option value="cha">Carisma</option>
+                    </select>
+                </div>
+                <div class="text-center">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">CD Magia</label>
+                    <input type="number" id="spell-save-dc" placeholder="13" 
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20 text-center">
+                </div>
+                <div class="text-center">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Bônus Ataque Magia</label>
+                    <input type="text" id="spell-attack-bonus" placeholder="+5" 
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20 text-center">
+                </div>
+            </div>
+
+            <!-- Espaços de Magia -->
+            <div class="mb-6">
+                <h3 class="text-gray-800 mb-3 font-semibold flex items-center">
+                    <span class="w-2 h-2 bg-roxo rounded-full mr-2"></span>
+                    Espaços de Magia
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
+                    <!-- Nível 0 (Truques) -->
+                    <div class="text-center p-3 bg-gray-50 rounded-lg border">
+                        <div class="text-xs font-semibold text-gray-600 mb-2">Truques</div>
+                        <input type="number" id="cantrips-known" min="0" placeholder="0" 
+                            class="w-full text-center text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-eletrico">
+                    </div>
+                    
+                    <!-- Níveis 1-9 -->
+                    <div class="text-center p-3 bg-blue-50 rounded-lg border" data-spell-level="1">
+                        <div class="text-xs font-semibold text-blue-600 mb-1">Nível 1</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-1-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-1" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-1-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-blue-50 rounded-lg border" data-spell-level="2">
+                        <div class="text-xs font-semibold text-blue-600 mb-1">Nível 2</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-2-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-2" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-2-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-blue-50 rounded-lg border" data-spell-level="3">
+                        <div class="text-xs font-semibold text-blue-600 mb-1">Nível 3</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-3-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-3" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-3-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-blue-50 rounded-lg border" data-spell-level="4">
+                        <div class="text-xs font-semibold text-blue-600 mb-1">Nível 4</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-4-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-4" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-4-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-blue-50 rounded-lg border" data-spell-level="5">
+                        <div class="text-xs font-semibold text-blue-600 mb-1">Nível 5</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-5-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-5" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-5-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-purple-50 rounded-lg border" data-spell-level="6">
+                        <div class="text-xs font-semibold text-purple-600 mb-1">Nível 6</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-6-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-6" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-6-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-purple-50 rounded-lg border" data-spell-level="7">
+                        <div class="text-xs font-semibold text-purple-600 mb-1">Nível 7</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-7-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-7" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-7-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-red-50 rounded-lg border" data-spell-level="8">
+                        <div class="text-xs font-semibold text-red-600 mb-1">Nível 8</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-8-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-8" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-8-used" value="0">
+                    </div>
+                    
+                    <div class="text-center p-3 bg-red-50 rounded-lg border" data-spell-level="9">
+                        <div class="text-xs font-semibold text-red-600 mb-1">Nível 9</div>
+                        <div class="text-xs text-gray-500 mb-1">Total</div>
+                        <input type="number" id="spell-slots-9-total" min="0" max="10" placeholder="0" 
+                            class="w-full text-center text-xs border border-gray-300 rounded px-1 py-1 focus:outline-none focus:border-eletrico mb-1">
+                        <div class="text-xs text-gray-500 mb-1">Espaços</div>
+                        <div id="spell-dots-9" class="flex flex-wrap justify-center gap-1 mb-1 min-h-[20px]">
+                            <!-- Bolinhas serão geradas dinamicamente -->
+                        </div>
+                        <input type="hidden" id="spell-slots-9-used" value="0">
+                    </div>
+                </div>
+                
+                <!-- Botão para Descanso Longo -->
+                <button id="long-rest-btn" 
+                    class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 mt-3 text-xs uppercase tracking-wide">
+                    🌙 DESCANSO LONGO (Restaurar Espaços)
+                </button>
+            </div>
+
+            <!-- Lista de Magias -->
+            <div class="mb-6">
+                <h3 class="text-gray-800 mb-3 font-semibold flex items-center">
+                    <span class="w-2 h-2 bg-roxo rounded-full mr-2"></span>
+                    Magias Conhecidas
+                </h3>
+                
+                <!-- Filtros -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <select id="spell-filter-level" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-eletrico">
+                        <option value="">Todos os Níveis</option>
+                        <option value="0">Truques</option>
+                        <option value="1">Nível 1</option>
+                        <option value="2">Nível 2</option>
+                        <option value="3">Nível 3</option>
+                        <option value="4">Nível 4</option>
+                        <option value="5">Nível 5</option>
+                        <option value="6">Nível 6</option>
+                        <option value="7">Nível 7</option>
+                        <option value="8">Nível 8</option>
+                        <option value="9">Nível 9</option>
+                    </select>
+                    <select id="spell-filter-school" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-eletrico">
+                        <option value="">Todas as Escolas</option>
+                        <option value="Abjuração">Abjuração</option>
+                        <option value="Adivinhação">Adivinhação</option>
+                        <option value="Conjuração">Conjuração</option>
+                        <option value="Encantamento">Encantamento</option>
+                        <option value="Evocação">Evocação</option>
+                        <option value="Ilusão">Ilusão</option>
+                        <option value="Necromancia">Necromancia</option>
+                        <option value="Transmutação">Transmutação</option>
+                    </select>
+                </div>
+
+                <!-- Cabeçalho da Lista -->
+                <div class="grid grid-cols-12 gap-2 text-center text-gray-600 font-semibold text-xs uppercase tracking-wide border-b-2 border-gray-200 pb-2 mb-3">
+                    <span class="col-span-3">Nome</span>
+                    <span class="col-span-1">Nível</span>
+                    <span class="col-span-2">Escola</span>
+                    <span class="col-span-1">Tempo</span>
+                    <span class="col-span-1">Alcance</span>
+                    <span class="col-span-2">Componentes</span>
+                    <span class="col-span-1">Duração</span>
+                    <span class="col-span-1">Ações</span>
+                </div>
+
+                <!-- Lista de Magias -->
+                <div id="spells-list" class="space-y-2 min-h-[100px]">
+                    <!-- Magias serão adicionadas dinamicamente aqui -->
+                </div>
+
+                <!-- Botão Adicionar Magia -->
+                <button id="add-spell-btn" 
+                    class="bg-esmeralda text-white font-semibold py-3 px-6 rounded-md hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 mt-4 text-sm uppercase tracking-wide">
+                    ✨ ADICIONAR MAGIA
+                </button>
+            </div>
+        </section>
+
+        <!-- Equipamentos -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                EQUIPAMENTOS & TESOURO</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <h3 class="text-gray-800 mb-3 font-semibold">Equipamentos</h3>
+                    <textarea id="equipment" placeholder="Liste seus equipamentos aqui..."
+                        class="w-full h-48 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-gray-800 font-semibold">Moedas</h3>
+                        <a href="galactic-economy/index.html" target="_blank"
+                            class="bg-roxo text-white text-xs px-3 py-1 rounded hover:bg-purple-700 transition-colors"
+                            title="Sistema Econômico Galáctico">🌌 Economia</a>
+                    </div>
+                    <div class="grid grid-cols-5 gap-3">
+                        <div class="text-center">
+                            <label class="block text-gray-600 font-semibold text-xs mb-1">CC</label>
+                            <input type="number" id="copper" value="0"
+                                class="w-full text-center font-medium border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                        <div class="text-center">
+                            <label class="block text-gray-600 font-semibold text-xs mb-1">CK</label>
+                            <input type="number" id="silver" value="0"
+                                class="w-full text-center font-medium border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                        <div class="text-center">
+                            <label class="block text-gray-600 font-semibold text-xs mb-1">CE</label>
+                            <input type="number" id="electrum" value="0"
+                                class="w-full text-center font-medium border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                        <div class="text-center">
+                            <label class="block text-gray-600 font-semibold text-xs mb-1">CO</label>
+                            <input type="number" id="gold" value="0"
+                                class="w-full text-center font-medium border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                        <div class="text-center">
+                            <label class="block text-gray-600 font-semibold text-xs mb-1">CPP</label>
+                            <input type="number" id="platinum" value="0"
+                                class="w-full text-center font-medium border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aprimoramentos Genéticos -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                APRIMORAMENTOS GENÉTICOS</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="text-gray-800 mb-3 font-semibold">Modificações Ativas</h3>
+                    <div id="genetic-modifications-list" class="space-y-3 mb-4">
+                        <!-- Aprimoramentos serão adicionados dinamicamente aqui -->
+                    </div>
+                    <button id="add-genetic-mod"
+                        class="bg-roxo text-white text-sm px-4 py-2 rounded hover:bg-purple-700 transition-colors">+
+                        Adicionar Modificação</button>
+                </div>
+
+                <div>
+                    <h3 class="text-gray-800 mb-3 font-semibold">Efeitos Colaterais</h3>
+                    <textarea id="genetic-side-effects" placeholder="Descreva possíveis efeitos colaterais..."
+                        class="w-full h-32 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+            </div>
+
+            <!-- Nível de Rejeição -->
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                <div class="text-center mb-3">
+                    <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide">NÍVEL DE
+                        REJEIÇÃO</label>
+                    <div class="flex justify-center items-center gap-2">
+                        <span id="rejection-percentage" class="text-lg font-semibold text-red-500">0%</span>
+                        <span class="text-xs text-gray-500">(Mínimo: <span id="rejection-minimum">0</span>%)</span>
+                    </div>
+                </div>
+                <div class="h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
+                    <div class="h-full bg-red-500 transition-all duration-300 rounded-full" id="rejection-fill"
+                        style="width: 0%"></div>
+                </div>
+                <input type="hidden" id="rejection-slider" min="0" max="100" value="0"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </section>
+
+        <!-- Aprimoramentos Mecânicos -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                APRIMORAMENTOS MECÂNICOS</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="text-gray-800 mb-3 font-semibold">Implantes Ativos</h3>
+                    <div id="mechanical-implants-list" class="space-y-3 mb-4">
+                        <!-- Implantes serão adicionados dinamicamente aqui -->
+                    </div>
+                    <button id="add-mechanical-implant"
+                        class="bg-roxo text-white text-sm px-4 py-2 rounded hover:bg-purple-700 transition-colors">+
+                        Adicionar Implante</button>
+                </div>
+
+                <div>
+                    <h3 class="text-gray-800 mb-3 font-semibold">Manutenção Necessária</h3>
+                    <textarea id="maintenance-needs" placeholder="Descreva necessidades de manutenção..."
+                        class="w-full h-32 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+            </div>
+
+            <!-- Sobrecarga Neural -->
+            <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                <div class="text-center mb-3">
+                    <label class="block text-gray-600 text-sm font-medium uppercase tracking-wide">SOBRECARGA
+                        NEURAL</label>
+                    <div class="flex justify-center items-center gap-2">
+                        <span id="neural-overload-percentage" class="text-lg font-semibold text-yellow-500">0%</span>
+                        <span class="text-xs text-gray-500">(Mínimo: <span id="neural-minimum">0</span>%)</span>
+                    </div>
+                </div>
+                <div class="h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
+                    <div class="h-full bg-yellow-500 transition-all duration-300 rounded-full" id="neural-overload-fill"
+                        style="width: 0%"></div>
+                </div>
+                <input type="hidden" id="neural-overload-slider" min="0" max="100" value="0"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </section>
+
+        <!-- Traços & Características -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                TRAÇOS & CARACTERÍSTICAS</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-roxo mb-3 font-semibold">Traços de Personalidade</h3>
+                    <textarea id="personality-traits" placeholder="Descreva os traços de personalidade..."
+                        class="w-full h-24 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+                <div>
+                    <h3 class="text-roxo mb-3 font-semibold">Ideais</h3>
+                    <textarea id="ideals" placeholder="Quais são os ideais do personagem..."
+                        class="w-full h-24 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+                <div>
+                    <h3 class="text-roxo mb-3 font-semibold">Vínculos</h3>
+                    <textarea id="bonds" placeholder="O que conecta o personagem ao mundo..."
+                        class="w-full h-24 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+                <div>
+                    <h3 class="text-roxo mb-3 font-semibold">Defeitos</h3>
+                    <textarea id="flaws" placeholder="Quais são as fraquezas do personagem..."
+                        class="w-full h-24 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- Habilidades & Características -->
+        <section
+            class="bg-white border border-gray-200 rounded-lg p-6 hover:border-eletrico transition-colors mb-6 col-span-full">
+            <h2 class="text-roxo font-semibold text-lg uppercase tracking-wide border-b-2 border-gray-100 pb-2 mb-5">
+                HABILIDADES & CARACTERÍSTICAS</h2>
+            <textarea id="features"
+                placeholder="Liste todas as habilidades de classe, raciais e outras características especiais..."
+                class="w-full h-32 border border-gray-300 rounded-md px-4 py-3 text-sm resize-y focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20"></textarea>
+        </section>
+
+        <!-- Botões de Ação -->
+        <div class="flex justify-center gap-4 flex-wrap mt-8 action-buttons">
+            <button
+                class="bg-esmeralda text-white font-semibold py-3 px-7 rounded-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-sm uppercase tracking-wide save-btn">SALVAR
+                FICHA</button>
+            <button
+                class="bg-eletrico text-white font-semibold py-3 px-7 rounded-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-sm uppercase tracking-wide load-btn">CARREGAR
+                FICHA</button>
+            <button
+                class="bg-red-500 text-white font-semibold py-3 px-7 rounded-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-sm uppercase tracking-wide reset-btn">RESETAR</button>
+            <button
+                class="bg-roxo text-white font-semibold py-3 px-7 rounded-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-sm uppercase tracking-wide list-characters-btn">VER PERSONAGENS</button>
+            <button
+                class="bg-roxo text-white font-semibold py-3 px-7 rounded-md hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-lg dice-btn">🎲
+                ROLAR DADOS</button>
+        </div>
+    </div>
+
+    <!-- Modal de Lista de Personagens -->
+    <div id="characters-list-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 modal">
+        <div class="bg-white mx-auto mt-10 p-6 border border-gray-200 rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto shadow-2xl modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-gray-800 text-xl font-semibold">PERSONAGENS SALVOS</h2>
+                <span class="text-gray-600 text-2xl font-semibold cursor-pointer hover:text-gray-800 transition-colors leading-none close">&times;</span>
+            </div>
+            
+            <div id="characters-loading" class="text-center py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-eletrico mx-auto mb-4"></div>
+                <p class="text-gray-600">Carregando personagens...</p>
+            </div>
+            
+            <div id="characters-list" class="hidden">
+                <!-- Lista será preenchida dinamicamente -->
+            </div>
+            
+            <div id="no-characters" class="hidden text-center py-8">
+                <p class="text-gray-600 mb-4">Nenhum personagem encontrado.</p>
+                <p class="text-sm text-gray-500">Crie e salve um personagem para vê-lo aqui!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Dados -->
+    <div id="dice-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 modal">
+        <div
+            class="bg-white mx-auto mt-20 p-8 border border-gray-200 rounded-xl w-96 max-w-[90%] shadow-2xl modal-content">
+            <span
+                class="text-gray-600 float-right text-2xl font-semibold cursor-pointer hover:text-gray-800 transition-colors leading-none close">&times;</span>
+            <h2 class="text-gray-800 text-center mb-6 text-xl font-semibold">ROLAGEM DE DADOS</h2>
+            <div class="flex gap-3 mb-6 items-center justify-center flex-wrap dice-controls">
+                <select id="dice-type"
+                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                    <option value="d4">d4</option>
+                    <option value="d6">d6</option>
+                    <option value="d8">d8</option>
+                    <option value="d10">d10</option>
+                    <option value="d12">d12</option>
+                    <option value="d20" selected>d20</option>
+                    <option value="d100">d100</option>
+                </select>
+                <input type="number" id="dice-count" value="1" min="1" max="10"
+                    class="w-16 border border-gray-300 rounded px-3 py-2 text-sm text-center focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                <input type="number" id="dice-modifier" value="0" placeholder="Modificador"
+                    class="w-24 border border-gray-300 rounded px-3 py-2 text-sm text-center focus:outline-none focus:border-eletrico focus:ring-2 focus:ring-eletrico/20">
+                <button id="roll-dice"
+                    class="bg-esmeralda text-white font-semibold py-2 px-6 rounded-md hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 text-sm uppercase tracking-wide">ROLAR</button>
+            </div>
+            <div id="dice-result"
+                class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-xl text-gray-800 min-h-20 flex flex-col items-center justify-center">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

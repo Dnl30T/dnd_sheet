@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela do Mestre - D&D Future</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="gm-screen.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'roxo': '#6B46C1',
+                        'eletrico': '#06B6D4',
+                        'esmeralda': '#10B981',
+                        'prata-metalico': '#9CA3AF',
+                        'cinza-grafite': '#374151'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para GM Screen */
+        .player-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .player-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #06B6D4;
+        }
+        
+        .status-bar {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .hp-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        .hp-warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .hp-healthy { background: linear-gradient(90deg, #10B981, #34D399); }
+        
+        .blight-low { background: linear-gradient(90deg, #10B981, #34D399); }
+        .blight-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .blight-high { background: linear-gradient(90deg, #F97316, #FB923C); }
+        .blight-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .rejection-low { background: linear-gradient(90deg, #10B981, #34D399); }
+        .rejection-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .rejection-high { background: linear-gradient(90deg, #F97316, #FB923C); }
+        .rejection-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .neural-low { background: linear-gradient(90deg, #06B6D4, #67E8F9); }
+        .neural-medium { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+        .neural-high { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+        .neural-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .gm-reference {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        }
+        
+        .quick-edit {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .player-card:hover .quick-edit {
+            opacity: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success { background: #10B981; }
+        .notification.error { background: #EF4444; }
+        .notification.warning { background: #F59E0B; }
+        .notification.info { background: #06B6D4; }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4">
+        <div class="max-w-full mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-eletrico">🎲 TELA DO MESTRE</h1>
+                <p class="text-gray-400 text-sm">Sistema D&D Future - Controle de Sessão</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="refresh-players" class="bg-eletrico text-white px-4 py-2 rounded hover:bg-cyan-600 transition-colors">
+                    🔄 Atualizar
+                </button>
+                <button id="toggle-auto-refresh" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition-colors">
+                    🔄 Auto-Atualizar: OFF
+                </button>
+                <button id="add-player" class="bg-esmeralda text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                    ➕ Adicionar Jogador
+                </button>
+                <a href="index.html" class="bg-roxo text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
+                    📋 Ficha Principal
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-full mx-auto p-6">
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <!-- Players Section -->
+            <div class="xl:col-span-3">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-white">👥 Jogadores Ativos</h2>
+                    <span id="player-count" class="bg-gray-700 px-3 py-1 rounded text-sm">0 jogadores</span>
+                </div>
+                
+                <div id="players-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <!-- Player cards will be generated here -->
+                </div>
+            </div>
+
+            <!-- GM Reference Panel -->
+            <div class="xl:col-span-1">
+                <div class="gm-reference rounded-lg p-6 text-white">
+                    <h2 class="text-lg font-semibold mb-4 text-eletrico">📚 Referências do Mestre</h2>
+                    
+                    <!-- Quick Rules -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2 text-yellow-400">⚡ Regras Rápidas</h3>
+                        <div class="text-sm space-y-1 text-gray-300">
+                            <div><strong>CD Fácil:</strong> 10-11</div>
+                            <div><strong>CD Médio:</strong> 12-15</div>
+                            <div><strong>CD Difícil:</strong> 16-20</div>
+                            <div><strong>CD Épico:</strong> 21+</div>
+                        </div>
+                    </div>
+
+                    <!-- Conditions -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2 text-red-400">🔴 Condições</h3>
+                        <div class="text-xs space-y-1 text-gray-300">
+                            <div><strong>Cego:</strong> -5 ataques, falha auto em Percepção visual</div>
+                            <div><strong>Envenenado:</strong> Desvantagem em ataques e habilidades</div>
+                            <div><strong>Incapacitado:</strong> Não pode realizar ações</div>
+                            <div><strong>Paralizado:</strong> Incapacitado, falha auto em For/Des</div>
+                            <div><strong>Atordoado:</strong> Incapacitado, falha auto em Des</div>
+                        </div>
+                    </div>
+
+                    <!-- Initiative Tracker -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2 text-green-400">⚔️ Iniciativa</h3>
+                        <div id="initiative-list" class="space-y-1 text-sm">
+                            <div class="text-gray-400 text-xs">Clique em "Rolar Iniciativa" para começar</div>
+                        </div>
+                        <button id="roll-initiative" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
+                            🎲 Rolar Iniciativa
+                        </button>
+                    </div>
+
+                    <!-- Quick Notes -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2 text-purple-400">📝 Notas Rápidas</h3>
+                        <textarea id="gm-notes" 
+                            class="w-full h-24 bg-gray-800 border border-gray-600 rounded p-2 text-sm text-white resize-none focus:outline-none focus:border-eletrico"
+                            placeholder="Notas da sessão..."></textarea>
+                    </div>
+
+                    <!-- Session Timer -->
+                    <div>
+                        <h3 class="font-semibold mb-2 text-blue-400">⏱️ Tempo de Sessão</h3>
+                        <div id="session-timer" class="text-xl font-mono text-center bg-gray-800 rounded p-2">
+                            00:00:00
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button id="start-timer" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">▶️</button>
+                            <button id="pause-timer" class="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700">⏸️</button>
+                            <button id="reset-timer" class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">⏹️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Edit Modal -->
+    <div id="player-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-600">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-white">✏️ Editar Jogador</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Nome</label>
+                        <input type="text" id="edit-name" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">HP Atual</label>
+                            <input type="number" id="edit-current-hp" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">HP Máximo</label>
+                            <input type="number" id="edit-max-hp" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Blight (%)</label>
+                            <input type="number" id="edit-blight" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Rejeição (%)</label>
+                            <input type="number" id="edit-rejection" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Neural (%)</label>
+                            <input type="number" id="edit-neural" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">CA</label>
+                            <input type="number" id="edit-ac" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Iniciativa</label>
+                            <input type="number" id="edit-initiative" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        </div>
+                    </div>
+                    
+                    <!-- Condições -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Condições Ativas</label>
+                        <div id="conditions-container" class="space-y-2 mb-2">
+                            <!-- Condições serão adicionadas dinamicamente aqui -->
+                        </div>
+                        <div class="flex gap-2">
+                            <select id="condition-select" class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                                <option value="">Selecione uma condição...</option>
+                                <option value="Cego">Cego</option>
+                                <option value="Encantado">Encantado</option>
+                                <option value="Surdo">Surdo</option>
+                                <option value="Amedrontado">Amedrontado</option>
+                                <option value="Agarrado">Agarrado</option>
+                                <option value="Incapacitado">Incapacitado</option>
+                                <option value="Invisível">Invisível</option>
+                                <option value="Paralizado">Paralizado</option>
+                                <option value="Petrificado">Petrificado</option>
+                                <option value="Envenenado">Envenenado</option>
+                                <option value="Caído">Caído</option>
+                                <option value="Contido">Contido</option>
+                                <option value="Atordoado">Atordoado</option>
+                                <option value="Inconsciente">Inconsciente</option>
+                                <option value="Exausto">Exausto</option>
+                                <option value="Concentrando">Concentrando</option>
+                                <option value="Sangrando">Sangrando</option>
+                                <option value="Infectado">Infectado</option>
+                                <option value="Sobrecarga Neural">Sobrecarga Neural</option>
+                                <option value="Glitch Cibernético">Glitch Cibernético</option>
+                            </select>
+                            <button id="add-condition" type="button" class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition-colors">
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button id="save-player" class="flex-1 bg-esmeralda text-white py-2 rounded hover:bg-green-600 transition-colors">
+                        💾 Salvar
+                    </button>
+                    <button id="cancel-edit" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="gm-screen.js"></script>
+</body>
+
+</html>

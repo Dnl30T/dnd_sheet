@@ -1,0 +1,458 @@
+/* Customizações específicas para checkboxes */
+.cyber-checkbox:checked,
+.prof-checkbox:checked,
+.death-save:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+}
+
+.death-save.success:checked {
+    background-color: #2ECC71;
+    border-color: #2ECC71;
+}
+
+.death-save.failure:checked {
+    background-color: #e53e3e;
+    border-color: #e53e3e;
+}
+
+/* Customização do slider de blight */
+.blight-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #2ECC71;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.blight-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #2ECC71;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Customização dos sliders de rejeição e sobrecarga neural */
+#rejection-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #EF4444;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#rejection-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #EF4444;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#neural-overload-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #F59E0B;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#neural-overload-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #F59E0B;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Point Buy System */
+#point-buy-system {
+    transition: all 0.3s ease;
+}
+
+#point-buy-info {
+    font-family: 'Courier New', monospace;
+}
+
+.attribute-value[readonly] {
+    background-color: #f3f4f6 !important;
+    cursor: not-allowed;
+}
+
+/* Estados visuais para atributos */
+.high-stat {
+    border-color: #2ECC71 !important;
+    background-color: rgba(46, 204, 113, 0.05) !important;
+}
+
+.low-stat {
+    border-color: #e53e3e !important;
+    background-color: rgba(229, 62, 62, 0.05) !important;
+}
+
+/* Estados visuais para HP */
+.hp-critical {
+    border-color: #e53e3e !important;
+    background-color: rgba(229, 62, 62, 0.05) !important;
+}
+
+.hp-warning {
+    border-color: #f6ad55 !important;
+    background-color: rgba(246, 173, 85, 0.05) !important;
+}
+
+.hp-healthy {
+    border-color: #2ECC71 !important;
+    background-color: rgba(46, 204, 113, 0.05) !important;
+}
+
+/* Estados do Blight */
+.blight-low .blight-fill {
+    background: #2ECC71 !important;
+}
+
+.blight-medium .blight-fill {
+    background: linear-gradient(90deg, #2ECC71, #f6ad55) !important;
+}
+
+.blight-high .blight-fill {
+    background: linear-gradient(90deg, #f6ad55, #e53e3e) !important;
+}
+
+.blight-critical .blight-fill {
+    background: #e53e3e !important;
+}
+
+.blight-critical {
+    border-color: #e53e3e !important;
+    background-color: rgba(229, 62, 62, 0.05) !important;
+}
+
+/* Responsividade para ataques em mobile */
+@media (max-width: 768px) {
+    .attack-row.header {
+        display: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .action-buttons,
+    .blight-indicator {
+        display: none;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Cores adicionais para Tailwind */
+.text-green-500 {
+    color: #10B981 !important;
+}
+
+.text-orange-500 {
+    color: #F97316 !important;
+}
+
+/* Estilos para aprimoramentos */
+.genetic-mod, .mechanical-implant {
+    transition: all 0.2s ease;
+}
+
+.genetic-mod:hover, .mechanical-implant:hover {
+    background-color: #f8fafc !important;
+    border-color: #4A90E2 !important;
+}
+
+.genetic-mod .remove-genetic, .mechanical-implant .remove-implant {
+    transition: all 0.2s ease;
+}
+
+.genetic-mod .remove-genetic:hover, .mechanical-implant .remove-implant:hover {
+    background-color: #dc2626 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animação para elementos adicionados dinamicamente */
+.genetic-mod, .mechanical-implant {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Melhor visualização dos valores mínimos */
+#rejection-minimum, #neural-minimum {
+    font-weight: 600;
+    color: #6B73FF;
+}
+
+/* Estilos para o botão de informação de moedas */
+#currency-info-btn {
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+#currency-info-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+}
+
+/* Estilos para a tabela de conversão de moedas */
+#currency-modal table {
+    font-family: inherit;
+}
+
+#currency-modal th {
+    background-color: #f8fafc;
+    font-weight: 600;
+}
+
+#currency-modal tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+#currency-modal tbody tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Responsividade da tabela */
+@media (max-width: 768px) {
+    #currency-modal .modal-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    #currency-modal table {
+        font-size: 0.75rem;
+    }
+    
+    #currency-modal th,
+    #currency-modal td {
+        padding: 0.375rem 0.25rem;
+    }
+}
+
+/* Estilos para o sistema econômico */
+.economic-status {
+    transition: all 0.3s ease;
+}
+
+.variation {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+#next-update-timer {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+}
+
+/* Animações para mudanças de valores */
+.economic-status .variation {
+    transition: color 0.5s ease, transform 0.2s ease;
+}
+
+.economic-status:hover .variation {
+    transform: scale(1.1);
+}
+
+/* Cores para status econômico */
+.text-green-600 {
+    color: #059669 !important;
+}
+
+.text-red-600 {
+    color: #dc2626 !important;
+}
+
+/* Efeitos especiais para variações altas */
+@keyframes pulse-green {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(16, 185, 129, 0.1); }
+}
+
+@keyframes pulse-red {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(239, 68, 68, 0.1); }
+}
+
+.high-positive {
+    animation: pulse-green 2s infinite;
+}
+
+.high-negative {
+    animation: pulse-red 2s infinite;
+}
+
+/* Estilos para foto do personagem */
+.character-photo-container {
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* Impede que a foto seja comprimida */
+}
+
+.character-photo-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#character-photo {
+    transition: opacity 0.3s ease;
+}
+
+#photo-placeholder {
+    transition: opacity 0.3s ease;
+}
+
+/* Responsividade da foto */
+@media (max-width: 1024px) {
+    .character-photo-container {
+        width: 7rem;
+        height: 7rem;
+    }
+    
+    #character-photo-url {
+        width: 7rem;
+    }
+}
+
+/* Gradientes únicos para barra de rejeição */
+.rejection-gradient-low {
+    background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.rejection-gradient-medium {
+    background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.rejection-gradient-high {
+    background: linear-gradient(90deg, #F97316 0%, #FB923C 100%);
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+}
+
+.rejection-gradient-critical {
+    background: linear-gradient(90deg, #EF4444 0%, #F87171 100%);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+}
+
+/* Gradientes únicos para barra neural */
+.neural-gradient-low {
+    background: linear-gradient(90deg, #06B6D4 0%, #67E8F9 100%);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+.neural-gradient-medium {
+    background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.neural-gradient-high {
+    background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.neural-gradient-critical {
+    background: linear-gradient(90deg, #DC2626 0%, #EF4444 100%);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.7);
+}
+
+/* Efeitos de piscar para valores críticos */
+.rejection-blink {
+    animation: rejection-pulse 1s infinite;
+}
+
+.neural-blink {
+    animation: neural-pulse 1s infinite;
+}
+
+@keyframes rejection-pulse {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(239, 68, 68, 1), 0 0 35px rgba(239, 68, 68, 0.5);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes neural-pulse {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(139, 92, 246, 1), 0 0 35px rgba(139, 92, 246, 0.5);
+        transform: scale(1.02);
+    }
+}
+
+/* Desabilitar sliders de rejeição e neural */
+#rejection-slider, #neural-overload-slider {
+    pointer-events: none;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+#rejection-slider::-webkit-slider-thumb,
+#neural-overload-slider::-webkit-slider-thumb {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#rejection-slider::-moz-range-thumb,
+#neural-overload-slider::-moz-range-thumb {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+    .character-photo-container {
+        width: 6rem;
+        height: 6rem;
+        margin: 0 auto;
+    }
+    
+    #character-photo-url {
+        width: 6rem;
+    }
+    
+    /* Centralizar a foto em telas pequenas */
+    .lg\\:items-start {
+        align-items: center !important;
+    }
+}

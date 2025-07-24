@@ -1,0 +1,23 @@
+# Redirecionamento para a página de personagens
+RewriteEngine On
+
+# Redirecionar /personagens/[nome] para /personagens/?character=[nome]
+RewriteRule ^personagens/([^/]+)/?$ personagens/index.html [L]
+
+# Permitir acesso direto aos arquivos
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Adicionar headers para melhor performance
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+</IfModule>
+
+# Configurações de MIME type
+AddType application/javascript .js
+AddType text/css .css
