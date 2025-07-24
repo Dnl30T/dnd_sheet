@@ -38,8 +38,18 @@ function initializeFirebase() {
         db = firebase.firestore();
         console.log('🔥 Firebase inicializado na GM Screen');
         
+        // Teste de conectividade
+        db.enableNetwork().then(() => {
+            $('#firebase-indicator').html('🔥 Firebase conectado').addClass('text-green-500').removeClass('text-gray-500 text-red-500');
+            console.log('✅ Firebase conectado com sucesso');
+        }).catch((error) => {
+            $('#firebase-indicator').html('❌ Firebase offline').addClass('text-red-500').removeClass('text-gray-500 text-green-500');
+            console.error('❌ Erro na conectividade:', error);
+        });
+        
     } catch (error) {
         console.error('❌ Erro ao inicializar Firebase:', error);
+        $('#firebase-indicator').html('❌ Erro no Firebase').addClass('text-red-500').removeClass('text-gray-500 text-green-500');
         showNotification('Erro ao conectar com Firebase. Usando dados locais.', 'warning');
     }
 }
@@ -52,6 +62,7 @@ function setupEventListeners() {
     // Botões principais
     $('#refresh-players').on('click', loadPlayersFromFirebase);
     $('#toggle-auto-refresh').on('click', toggleAutoRefresh);
+    $('#test-firebase-connection').on('click', testFirebaseConnection);
     $('#add-player').on('click', showAddPlayerDialog);
     
     // Modal
@@ -89,29 +100,42 @@ async function loadPlayersFromFirebase() {
 
     try {
         showNotification('Carregando jogadores do Firebase...', 'info');
+        console.log('🔍 Buscando personagens na coleção "characters"...');
         
         // Buscar todas as fichas de personagem no Firebase
         const querySnapshot = await db.collection('characters').get();
+        console.log('📊 Total de documentos encontrados:', querySnapshot.size);
         
         players = [];
         
+        if (querySnapshot.empty) {
+            console.log('⚠️ Nenhum documento encontrado na coleção characters');
+            showNotification('Nenhuma ficha encontrada no Firebase', 'warning');
+            loadExamplePlayers();
+            return;
+        }
+        
         querySnapshot.forEach((doc) => {
             const data = doc.data();
+            console.log('📊 Dados do Firebase para', doc.id, ':', data);
+            
             const player = {
                 id: doc.id,
-                name: data.nome || data.name || 'Personagem Sem Nome',
-                currentHp: parseInt(data.pontosDeVidaAtuais) || parseInt(data.currentHp) || 10,
-                maxHp: parseInt(data.pontosDeVidaMaximos) || parseInt(data.maxHp) || 10,
-                blight: parseInt(data.statusBlight) || parseInt(data.blight) || 0,
-                rejection: parseInt(data.nivelDeRejeicao) || parseInt(data.rejection) || 0,
-                neural: parseInt(data.sobrecargaNeural) || parseInt(data.neural) || 0,
-                ac: parseInt(data.classeDeArmadura) || parseInt(data.ac) || 10,
-                initiative: parseInt(data.modificadorIniciativa) || parseInt(data.initiative) || 0,
-                class: data.classe || data.class || 'Classe Desconhecida',
-                level: parseInt(data.nivel) || parseInt(data.level) || 1,
-                conditions: data.condicoes || data.conditions || [],
-                lastUpdate: data.lastUpdate || new Date().toISOString()
+                name: data.name || 'Personagem Sem Nome',
+                currentHp: parseInt(data.currentHp) || 10,
+                maxHp: parseInt(data.maxHp) || 10,
+                blight: parseInt(data.blightLevel) || 0,
+                rejection: parseInt(data.rejectionLevel) || 0,
+                neural: parseInt(data.neuralOverload) || 0,
+                ac: parseInt(data.armorClass) || 10,
+                initiative: parseInt(data.initiative) || 0,
+                class: data.classLevel || 'Classe Desconhecida',
+                level: extractLevelFromClassLevel(data.classLevel) || 1,
+                conditions: data.conditions || [],
+                lastUpdate: data.lastSaved || data.lastUpdate || new Date().toISOString()
             };
+            
+            console.log('👤 Player processado:', player);
             
             // Validar dados básicos
             if (player.maxHp <= 0) player.maxHp = 10;
@@ -179,6 +203,12 @@ function loadExamplePlayers() {
     ];
     renderPlayers();
     showNotification('Carregados dados de exemplo (Firebase indisponível)', 'info');
+}
+
+function extractLevelFromClassLevel(classLevel) {
+    if (!classLevel) return 1;
+    const match = classLevel.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 1;
 }
 
 function renderPlayers() {
@@ -342,8 +372,20 @@ $(document).on('click', '.edit-player', function() {
 $(document).on('click', '.remove-player', function() {
     const playerId = $(this).data('player-id');
     const player = players.find(p => p.id === playerId);
+    
+    console.log('🗑️ Tentando remover jogador:', playerId, player);
+    
+    if (!player) {
+        console.error('❌ Jogador não encontrado:', playerId);
+        showNotification('Erro: Jogador não encontrado!', 'error');
+        return;
+    }
+    
     if (confirm(`Tem certeza que deseja remover ${player.name}?`)) {
+        console.log('✅ Confirmado - removendo jogador:', player.name);
         removePlayer(playerId);
+    } else {
+        console.log('❌ Cancelado - não removendo jogador:', player.name);
     }
 });
 
@@ -429,18 +471,17 @@ async function syncPlayerToFirebase(player) {
     try {
         // Preparar dados para o Firebase (usar nomes dos campos da ficha original)
         const firebaseData = {
-            nome: player.name,
-            pontosDeVidaAtuais: player.currentHp,
-            pontosDeVidaMaximos: player.maxHp,
-            statusBlight: player.blight,
-            nivelDeRejeicao: player.rejection,
-            sobrecargaNeural: player.neural,
-            classeDeArmadura: player.ac,
-            modificadorIniciativa: player.initiative,
-            classe: player.class,
-            nivel: player.level,
-            condicoes: player.conditions || [],
-            lastUpdate: new Date().toISOString(),
+            name: player.name,
+            currentHp: player.currentHp,
+            maxHp: player.maxHp,
+            blightLevel: player.blight,
+            rejectionLevel: player.rejection,
+            neuralOverload: player.neural,
+            armorClass: player.ac,
+            initiative: player.initiative,
+            classLevel: player.class,
+            conditions: player.conditions || [],
+            lastSaved: new Date().toISOString(),
             updatedByGM: true
         };
 
@@ -477,11 +518,65 @@ function adjustPlayerHP(playerId, action) {
     renderPlayers();
 }
 
-function removePlayer(playerId) {
+async function removePlayer(playerId) {
+    console.log('🗑️ removePlayer chamada para ID:', playerId);
+    
+    const player = players.find(p => p.id === playerId);
+    if (!player) {
+        console.error('❌ Jogador não encontrado no array players:', playerId);
+        return;
+    }
+    
+    console.log('✅ Jogador encontrado:', player.name, 'ID:', player.id);
+    
+    // Pausar auto-refresh temporariamente para evitar conflitos
+    const wasAutoRefreshEnabled = isAutoRefreshEnabled;
+    if (isAutoRefreshEnabled) {
+        console.log('⏸️ Pausando auto-refresh temporariamente...');
+        clearInterval(autoRefreshInterval);
+    }
+    
+    // Remover do Firebase primeiro
+    if (db && !playerId.startsWith('example')) {
+        try {
+            console.log('🔥 Removendo do Firebase primeiro:', playerId);
+            await db.collection('characters').doc(playerId).delete();
+            console.log(`✅ Jogador ${player.name} removido do Firebase`);
+        } catch (error) {
+            console.error('❌ Erro ao remover do Firebase:', error);
+            showNotification(`Erro ao remover ${player.name} do Firebase`, 'error');
+            
+            // Reativar auto-refresh se estava ativo
+            if (wasAutoRefreshEnabled) {
+                autoRefreshInterval = setInterval(() => {
+                    loadPlayersFromFirebase();
+                }, 10000);
+            }
+            return;
+        }
+    }
+    
+    // Remover do array local
+    const initialLength = players.length;
     players = players.filter(p => p.id !== playerId);
+    const finalLength = players.length;
+    
+    console.log(`📊 Array players: ${initialLength} -> ${finalLength} jogadores`);
+    
+    console.log('💾 Salvando e re-renderizando...');
     savePlayers();
     renderPlayers();
-    showNotification('Jogador removido', 'info');
+    
+    // Reativar auto-refresh se estava ativo
+    if (wasAutoRefreshEnabled) {
+        console.log('▶️ Reativando auto-refresh...');
+        autoRefreshInterval = setInterval(() => {
+            loadPlayersFromFirebase();
+        }, 10000);
+    }
+    
+    showNotification(`${player.name} removido com sucesso!`, 'success');
+    console.log('✅ Remoção concluída');
 }
 
 function showAddPlayerDialog() {
@@ -654,6 +749,50 @@ function toggleAutoRefresh() {
         isAutoRefreshEnabled = true;
         $button.text('🔄 Auto-Atualizar: ON').removeClass('bg-yellow-600').addClass('bg-green-600');
         showNotification('Auto-atualização habilitada (10s)', 'success');
+    }
+}
+
+async function testFirebaseConnection() {
+    const $button = $('#test-firebase-connection');
+    const originalText = $button.text();
+    
+    $button.text('🔄 Testando...').prop('disabled', true);
+    
+    try {
+        if (!db) {
+            showNotification('❌ Firebase não inicializado', 'error');
+            return;
+        }
+        
+        console.log('🧪 Iniciando teste de conexão Firebase...');
+        
+        // Teste 1: Verificar se pode acessar a coleção
+        const testQuery = await db.collection('characters').limit(1).get();
+        console.log('✅ Teste 1: Acesso à coleção - OK');
+        
+        // Teste 2: Listar todos os documentos
+        const allDocs = await db.collection('characters').get();
+        console.log(`✅ Teste 2: Total de documentos encontrados: ${allDocs.size}`);
+        
+        // Teste 3: Mostrar dados de cada documento
+        allDocs.forEach((doc, index) => {
+            console.log(`📄 Documento ${index + 1}:`, {
+                id: doc.id,
+                data: doc.data()
+            });
+        });
+        
+        if (allDocs.size > 0) {
+            showNotification(`✅ Firebase conectado! ${allDocs.size} personagem(ns) encontrado(s)`, 'success');
+        } else {
+            showNotification('⚠️ Firebase conectado mas sem personagens salvos', 'warning');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro no teste Firebase:', error);
+        showNotification('❌ Erro na conexão: ' + error.message, 'error');
+    } finally {
+        $button.text(originalText).prop('disabled', false);
     }
 }
 

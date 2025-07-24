@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Firebase - Debug</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Debug Firebase - D&D Sheet</h1>
+        <p>Use esta página para testar a conexão e dados do Firebase.</p>
+        
+        <div class="status" id="firebase-status">
+            🔄 Inicializando Firebase...
+        </div>
+        
+        <div>
+            <button onclick="testConnection()">🔗 Testar Conexão</button>
+            <button onclick="listCharacters()">👥 Listar Personagens</button>
+            <button onclick="testSaveCharacter()">💾 Testar Salvar</button>
+            <button onclick="clearLog()">🧹 Limpar Log</button>
+        </div>
+        
+        <div id="log" class="log">Aguardando comandos...</div>
+    </div>
+
+    <script>
+        let db = null;
+        
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').textContent = 'Log limpo.\n';
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('firebase-status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+        
+        // Inicializar Firebase
+        function initFirebase() {
+            try {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyARSykuZFgVtH-S1JX1k58CgC1OKBLBvdM",
+                    authDomain: "dndsheet-2b865.firebaseapp.com",
+                    projectId: "dndsheet-2b865",
+                    storageBucket: "dndsheet-2b865.firebasestorage.app",
+                    messagingSenderId: "660045034554",
+                    appId: "1:660045034554:web:5c017a7b999150048bf103",
+                    measurementId: "G-50N0WMT2BB"
+                };
+
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                
+                db = firebase.firestore();
+                
+                log('✅ Firebase inicializado com sucesso');
+                updateStatus('✅ Firebase inicializado', 'success');
+                
+                // Testar conectividade
+                db.enableNetwork().then(() => {
+                    log('✅ Rede Firebase habilitada');
+                    updateStatus('✅ Firebase conectado e online', 'success');
+                }).catch((error) => {
+                    log('❌ Erro na rede Firebase: ' + error.message);
+                    updateStatus('❌ Firebase offline', 'error');
+                });
+                
+            } catch (error) {
+                log('❌ Erro ao inicializar Firebase: ' + error.message);
+                updateStatus('❌ Erro na inicialização', 'error');
+            }
+        }
+        
+        async function testConnection() {
+            if (!db) {
+                log('❌ Firebase não inicializado');
+                return;
+            }
+            
+            try {
+                log('🔍 Testando conexão...');
+                const testDoc = await db.collection('test').doc('connection').set({
+                    timestamp: new Date(),
+                    test: true
+                });
+                log('✅ Teste de escrita bem-sucedido');
+                
+                const readTest = await db.collection('test').doc('connection').get();
+                if (readTest.exists) {
+                    log('✅ Teste de leitura bem-sucedido');
+                    log('📄 Dados do teste: ' + JSON.stringify(readTest.data(), null, 2));
+                }
+                
+                updateStatus('✅ Conexão Firebase OK', 'success');
+            } catch (error) {
+                log('❌ Erro no teste de conexão: ' + error.message);
+                updateStatus('❌ Erro na conexão', 'error');
+            }
+        }
+        
+        async function listCharacters() {
+            if (!db) {
+                log('❌ Firebase não inicializado');
+                return;
+            }
+            
+            try {
+                log('👥 Buscando personagens...');
+                const querySnapshot = await db.collection('characters').get();
+                
+                log(`📊 Total de personagens encontrados: ${querySnapshot.size}`);
+                
+                if (querySnapshot.empty) {
+                    log('⚠️ Nenhum personagem encontrado na coleção');
+                } else {
+                    querySnapshot.forEach((doc, index) => {
+                        log(`\n--- Personagem ${index + 1} ---`);
+                        log(`ID: ${doc.id}`);
+                        log(`Dados: ${JSON.stringify(doc.data(), null, 2)}`);
+                    });
+                }
+                
+            } catch (error) {
+                log('❌ Erro ao listar personagens: ' + error.message);
+            }
+        }
+        
+        async function testSaveCharacter() {
+            if (!db) {
+                log('❌ Firebase não inicializado');
+                return;
+            }
+            
+            try {
+                log('💾 Testando salvamento de personagem...');
+                
+                const testCharacter = {
+                    name: 'Teste Debug',
+                    currentHp: 50,
+                    maxHp: 75,
+                    blightLevel: 10,
+                    rejectionLevel: 15,
+                    neuralOverload: 5,
+                    armorClass: 16,
+                    initiative: 3,
+                    classLevel: 'Soldado 5',
+                    conditions: ['Teste'],
+                    lastSaved: new Date().toISOString(),
+                    createdBy: 'debug-test'
+                };
+                
+                const docRef = await db.collection('characters').doc('teste-debug').set(testCharacter);
+                log('✅ Personagem de teste salvo com sucesso');
+                log('📄 Dados salvos: ' + JSON.stringify(testCharacter, null, 2));
+                
+                // Tentar ler de volta
+                const readBack = await db.collection('characters').doc('teste-debug').get();
+                if (readBack.exists) {
+                    log('✅ Leitura de confirmação bem-sucedida');
+                    log('📖 Dados lidos: ' + JSON.stringify(readBack.data(), null, 2));
+                }
+                
+            } catch (error) {
+                log('❌ Erro ao testar salvamento: ' + error.message);
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Página carregada, inicializando Firebase...');
+            initFirebase();
+        });
+    </script>
+</body>
+</html>
