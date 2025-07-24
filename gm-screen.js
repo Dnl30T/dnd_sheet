@@ -65,6 +65,10 @@ function setupEventListeners() {
     $('#test-firebase-connection').on('click', testFirebaseConnection);
     $('#add-player').on('click', showAddPlayerDialog);
     
+    // Collapse toggles
+    $('#toggle-photos').on('click', togglePhotosSection);
+    $('#toggle-players').on('click', togglePlayersSection);
+    
     // Modal
     $('#close-modal, #cancel-edit').on('click', closeModal);
     $('#save-player').on('click', savePlayerChanges);
@@ -82,6 +86,14 @@ function setupEventListeners() {
     
     // Conditions management
     $('#add-condition').on('click', addConditionToPlayer);
+    
+    // Photo upload management
+    $('#select-photo').on('click', function() {
+        $('#photo-upload').click();
+    });
+    
+    $('#photo-upload').on('change', handlePhotoUpload);
+    $('#remove-photo').on('click', removePhoto);
     
     // Fechar modal clicando fora
     $('#player-edit-modal').on('click', function(e) {
@@ -132,6 +144,7 @@ async function loadPlayersFromFirebase() {
                 class: data.classLevel || 'Classe Desconhecida',
                 level: extractLevelFromClassLevel(data.classLevel) || 1,
                 conditions: data.conditions || [],
+                photo: data.photo || null,
                 lastUpdate: data.lastSaved || data.lastUpdate || new Date().toISOString()
             };
             
@@ -221,6 +234,54 @@ function renderPlayers() {
     });
     
     $('#player-count').text(`${players.length} jogador${players.length !== 1 ? 'es' : ''}`);
+    
+    // Renderizar também a seção de fotos
+    renderCharacterPhotos();
+}
+
+function renderCharacterPhotos() {
+    const $photosContainer = $('#character-photos');
+    $photosContainer.empty();
+    
+    if (players.length === 0) {
+        $photosContainer.append(`
+            <div class="text-gray-400 text-center w-full py-4">
+                <p>📷 Nenhum personagem para exibir</p>
+            </div>
+        `);
+        return;
+    }
+    
+    players.forEach(player => {
+        const photoCard = createCharacterPhotoCard(player);
+        $photosContainer.append(photoCard);
+    });
+}
+
+function createCharacterPhotoCard(player) {
+    const hpPercentage = (player.currentHp / player.maxHp) * 100;
+    const hpClass = hpPercentage <= 25 ? 'hp-critical' : hpPercentage <= 50 ? 'hp-warning' : 'hp-healthy';
+    
+    // Verificar se o personagem tem uma foto salva
+    const characterPhoto = player.photo || null;
+    
+    return $(`
+        <div class="character-photo-card w-40 h-52 bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-green-500 rounded-2xl overflow-hidden shadow-xl transform transition-all duration-300 hover:scale-105 hover:border-yellow-500 cursor-pointer" data-player-id="${player.id}" title="${player.name}">
+            <div class="h-32 bg-gradient-to-b from-gray-600 to-gray-700 flex items-center justify-center text-3xl text-gray-400 relative overflow-hidden">
+                ${characterPhoto ? 
+                    `<img src="${characterPhoto}" alt="${player.name}" class="w-full h-full object-cover">` : 
+                    '👤'
+                }
+            </div>
+            <div class="p-3 bg-gradient-to-t from-black to-gray-800">
+                <div class="text-xs font-bold text-white text-center mb-2 truncate">${player.name}</div>
+                <div class="h-2 bg-gray-600 rounded-full overflow-hidden mb-1">
+                    <div class="h-full ${hpClass} transition-all duration-500" style="width: ${Math.max(0, hpPercentage)}%"></div>
+                </div>
+                <div class="text-xs text-gray-300 text-center font-medium">${player.currentHp}/${player.maxHp} HP</div>
+            </div>
+        </div>
+    `);
 }
 
 function createPlayerCard(player) {
@@ -244,118 +305,120 @@ function createPlayerCard(player) {
         new Date(player.lastUpdate).toLocaleString('pt-BR') : 'Não informado';
     
     return $(`
-        <div class="player-card bg-gray-800 rounded-lg p-4 border border-gray-700" data-player-id="${player.id}">
-            <div class="flex justify-between items-start mb-3">
+        <div class="player-card bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-6 border-2 border-green-500 shadow-xl transform transition-all duration-300 hover:scale-105 hover:border-yellow-500" data-player-id="${player.id}">
+            <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <h3 class="text-lg font-semibold text-white">${player.name}</h3>
-                        <span class="text-xs" title="${dataTitle}">${dataSource}</span>
+                    <div class="flex items-center gap-3 mb-2">
+                        <h3 class="text-xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">${player.name}</h3>
+                        <span class="text-lg" title="${dataTitle}">${dataSource}</span>
                     </div>
-                    <p class="text-sm text-gray-400">${player.class} • Nível ${player.level}</p>
-                    <p class="text-xs text-gray-500">Atualizado: ${lastUpdateText}</p>
+                    <p class="text-sm text-gray-300 font-medium">${player.class} • Nível ${player.level}</p>
+                    <p class="text-xs text-gray-400 font-mono">📅 ${lastUpdateText}</p>
                 </div>
-                <div class="flex gap-1 quick-edit">
-                    <button class="edit-player bg-eletrico text-white px-2 py-1 rounded text-xs hover:bg-cyan-600" data-player-id="${player.id}">
+                <div class="flex gap-2 quick-edit opacity-0 transition-opacity duration-300">
+                    <button class="edit-player bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xs hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md transform hover:scale-110" data-player-id="${player.id}">
                         ✏️
                     </button>
-                    <button class="remove-player bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" data-player-id="${player.id}">
+                    <button class="remove-player bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2 rounded-lg text-xs hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md transform hover:scale-110" data-player-id="${player.id}">
                         🗑️
                     </button>
                 </div>
             </div>
             
             <!-- HP Bar -->
-            <div class="mb-3">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-medium text-gray-300">PONTOS DE VIDA</span>
-                    <span class="text-xs text-white">${player.currentHp}/${player.maxHp}</span>
+            <div class="mb-6 bg-gray-800 bg-opacity-50 p-4 rounded-xl border border-gray-600">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-bold text-green-400">💚 PONTOS DE VIDA</span>
+                    <span class="text-sm text-white font-mono bg-gray-700 px-2 py-1 rounded">${player.currentHp}/${player.maxHp}</span>
                 </div>
-                <div class="status-bar h-2 bg-gray-700">
-                    <div class="h-full ${hpClass}" style="width: ${Math.max(0, hpPercentage)}%"></div>
+                <div class="h-4 bg-gray-700 rounded-full overflow-hidden border border-gray-600 shadow-inner">
+                    <div class="h-full ${hpClass} transition-all duration-500" style="width: ${Math.max(0, hpPercentage)}%"></div>
                 </div>
-                <div class="flex gap-1 mt-1">
-                    <button class="hp-adjust bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" data-player-id="${player.id}" data-action="damage">
-                        💥 -
+                <div class="flex gap-2 mt-3">
+                    <button class="hp-adjust bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md transform hover:scale-105 font-semibold" data-player-id="${player.id}" data-action="damage">
+                        💥 Dano
                     </button>
-                    <button class="hp-adjust bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700" data-player-id="${player.id}" data-action="heal">
-                        ❤️ +
+                    <button class="hp-adjust bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md transform hover:scale-105 font-semibold" data-player-id="${player.id}" data-action="heal">
+                        ❤️ Cura
                     </button>
                 </div>
             </div>
             
             <!-- Status Bars Grid -->
-            <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="grid grid-cols-3 gap-4 mb-6">
                 <!-- Blight -->
-                <div>
-                    <div class="text-xs text-gray-300 mb-1">Blight</div>
-                    <div class="status-bar h-1.5 bg-gray-700">
-                        <div class="h-full ${blightClass}" style="width: ${player.blight}%"></div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-xl border border-gray-600">
+                    <div class="text-xs font-semibold text-red-400 mb-2 text-center">🦠 BLIGHT</div>
+                    <div class="h-3 bg-gray-700 rounded-full overflow-hidden border border-gray-600">
+                        <div class="h-full ${blightClass} transition-all duration-500" style="width: ${player.blight}%"></div>
                     </div>
-                    <div class="text-xs text-center text-gray-400 mt-1">${player.blight}%</div>
+                    <div class="text-xs text-center text-gray-300 mt-2 font-mono">${player.blight}%</div>
                 </div>
                 
                 <!-- Rejection -->
-                <div>
-                    <div class="text-xs text-gray-300 mb-1">Rejeição</div>
-                    <div class="status-bar h-1.5 bg-gray-700">
-                        <div class="h-full ${rejectionClass}" style="width: ${player.rejection}%"></div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-xl border border-gray-600">
+                    <div class="text-xs font-semibold text-purple-400 mb-2 text-center">🚫 REJEIÇÃO</div>
+                    <div class="h-3 bg-gray-700 rounded-full overflow-hidden border border-gray-600">
+                        <div class="h-full ${rejectionClass} transition-all duration-500" style="width: ${player.rejection}%"></div>
                     </div>
-                    <div class="text-xs text-center text-gray-400 mt-1">${player.rejection}%</div>
+                    <div class="text-xs text-center text-gray-300 mt-2 font-mono">${player.rejection}%</div>
                 </div>
                 
                 <!-- Neural -->
-                <div>
-                    <div class="text-xs text-gray-300 mb-1">Neural</div>
-                    <div class="status-bar h-1.5 bg-gray-700">
-                        <div class="h-full ${neuralClass}" style="width: ${player.neural}%"></div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-xl border border-gray-600">
+                    <div class="text-xs font-semibold text-yellow-400 mb-2 text-center">🧠 NEURAL</div>
+                    <div class="h-3 bg-gray-700 rounded-full overflow-hidden border border-gray-600">
+                        <div class="h-full ${neuralClass} transition-all duration-500" style="width: ${player.neural}%"></div>
                     </div>
-                    <div class="text-xs text-center text-gray-400 mt-1">${player.neural}%</div>
+                    <div class="text-xs text-center text-gray-300 mt-2 font-mono">${player.neural}%</div>
                 </div>
             </div>
             
             <!-- Combat Stats -->
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="bg-gray-700 rounded p-2 text-center">
-                    <div class="text-xs text-gray-300">CA</div>
-                    <div class="text-lg font-semibold text-white">${player.ac}</div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-4 text-center shadow-lg border border-blue-500">
+                    <div class="text-xs font-semibold text-blue-100 mb-1">🛡️ CLASSE DE ARMADURA</div>
+                    <div class="text-2xl font-black text-white">${player.ac}</div>
                 </div>
-                <div class="bg-gray-700 rounded p-2 text-center">
-                    <div class="text-xs text-gray-300">Iniciativa</div>
-                    <div class="text-lg font-semibold text-white">${player.initiative >= 0 ? '+' : ''}${player.initiative}</div>
+                <div class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl p-4 text-center shadow-lg border border-orange-500">
+                    <div class="text-xs font-semibold text-orange-100 mb-1">⚡ INICIATIVA</div>
+                    <div class="text-2xl font-black text-white">${player.initiative >= 0 ? '+' : ''}${player.initiative}</div>
                 </div>
             </div>
             
             <!-- Conditions -->
-            <div class="mb-3">
-                <div class="text-xs text-gray-300 mb-1">Condições:</div>
-                <div class="text-xs ${player.conditions && player.conditions.length > 0 ? 'text-yellow-400' : 'text-gray-400'} mb-2">
+            <div class="bg-gray-800 bg-opacity-50 p-4 rounded-xl border border-gray-600">
+                <div class="text-sm font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+                    🎭 CONDIÇÕES ATIVAS
+                </div>
+                <div class="text-sm ${player.conditions && player.conditions.length > 0 ? 'text-yellow-300' : 'text-gray-400'} mb-4 font-medium">
                     ${conditionsText}
                 </div>
                 <!-- Quick Condition Toggles -->
-                <div class="grid grid-cols-3 gap-1">
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Envenenado') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Envenenado') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Envenenado">
-                        🤢
+                        🤢 Veneno
                     </button>
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Amedrontado') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Amedrontado') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Amedrontado">
-                        😨
+                        😨 Medo
                     </button>
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Cego') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Cego') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Cego">
-                        👁️
+                        👁️ Cego
                     </button>
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Paralizado') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Paralizado') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Paralizado">
-                        🥶
+                        🥶 Paralizado
                     </button>
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Atordoado') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Atordoado') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Atordoado">
-                        😵
+                        😵 Atordoado
                     </button>
-                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Caído') ? 'bg-purple-600' : 'bg-gray-600'} text-white px-1 py-1 rounded text-xs hover:opacity-80" 
+                    <button class="quick-condition-toggle ${player.conditions && player.conditions.includes('Caído') ? 'bg-gradient-to-r from-purple-600 to-purple-700 border-purple-400' : 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500'} text-white px-3 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 border-2 shadow-md font-semibold" 
                             data-player-id="${player.id}" data-condition="Caído">
-                        ⬇️
+                        ⬇️ Caído
                     </button>
                 </div>
             </div>
@@ -406,6 +469,11 @@ $(document).on('click', '.quick-condition-toggle', function() {
     togglePlayerCondition(playerId, condition);
 });
 
+$(document).on('click', '.character-photo-card', function() {
+    const playerId = $(this).data('player-id');
+    editPlayer(playerId);
+});
+
 function editPlayer(playerId) {
     const player = players.find(p => p.id === playerId);
     if (!player) return;
@@ -422,6 +490,9 @@ function editPlayer(playerId) {
     $('#edit-ac').val(player.ac);
     $('#edit-initiative').val(player.initiative);
     
+    // Carregar foto se existir
+    updatePhotoPreview(player.photo);
+    
     // Carregar condições
     renderPlayerConditions();
     
@@ -434,6 +505,8 @@ function closeModal() {
     // Limpar container de condições
     $('#conditions-container').empty();
     $('#condition-select').val('');
+    // Limpar preview de foto
+    updatePhotoPreview(null);
 }
 
 function savePlayerChanges() {
@@ -448,6 +521,12 @@ function savePlayerChanges() {
     currentEditingPlayer.neural = parseInt($('#edit-neural').val()) || 0;
     currentEditingPlayer.ac = parseInt($('#edit-ac').val()) || 10;
     currentEditingPlayer.initiative = parseInt($('#edit-initiative').val()) || 0;
+    
+    // Salvar foto se foi alterada
+    const photoPreview = $('#photo-preview');
+    if (photoPreview.find('img').length > 0) {
+        currentEditingPlayer.photo = photoPreview.find('img').attr('src');
+    }
     
     // Atualizar timestamp
     currentEditingPlayer.lastUpdate = new Date().toISOString();
@@ -481,6 +560,7 @@ async function syncPlayerToFirebase(player) {
             initiative: player.initiative,
             classLevel: player.class,
             conditions: player.conditions || [],
+            photo: player.photo || null,
             lastSaved: new Date().toISOString(),
             updatedByGM: true
         };
@@ -604,6 +684,9 @@ function showAddPlayerDialog() {
     $('#edit-neural').val(0);
     $('#edit-ac').val(10);
     $('#edit-initiative').val(0);
+    
+    // Limpar foto
+    updatePhotoPreview(null);
     
     // Limpar condições
     renderPlayerConditions();
@@ -909,4 +992,92 @@ function togglePlayerCondition(playerId, condition) {
     
     savePlayers();
     renderPlayers();
+}
+
+// Funções para gerenciar fotos
+function handlePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Verificar tamanho do arquivo (máx 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        showNotification('Arquivo muito grande! Máximo 2MB.', 'error');
+        return;
+    }
+    
+    // Verificar tipo do arquivo
+    if (!file.type.startsWith('image/')) {
+        showNotification('Arquivo deve ser uma imagem!', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        updatePhotoPreview(e.target.result);
+        showNotification('Foto carregada! Clique em "Salvar" para confirmar.', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function updatePhotoPreview(photoSrc) {
+    const $preview = $('#photo-preview');
+    $preview.empty();
+    
+    if (photoSrc) {
+        $preview.html(`<img src="${photoSrc}" alt="Preview" class="w-full h-full object-cover rounded">`);
+    } else {
+        $preview.html('👤').addClass('text-gray-400 text-xl');
+    }
+}
+
+function removePhoto() {
+    updatePhotoPreview(null);
+    $('#photo-upload').val('');
+    if (currentEditingPlayer) {
+        currentEditingPlayer.photo = null;
+    }
+    showNotification('Foto removida! Clique em "Salvar" para confirmar.', 'info');
+}
+
+// Funções de Collapse
+function togglePhotosSection() {
+    const $section = $('.character-photos-section');
+    const $photos = $('#character-photos');
+    const $icon = $('#photos-toggle-icon');
+    const $text = $('#photos-toggle-text');
+    
+    if ($photos.hasClass('hidden')) {
+        // Expandir
+        $photos.removeClass('hidden').addClass('grid');
+        $section.removeClass('collapsed');
+        $icon.text('📐');
+        $text.text('Recolher');
+    } else {
+        // Recolher
+        $photos.removeClass('grid').addClass('hidden');
+        $section.addClass('collapsed');
+        $icon.text('📋');
+        $text.text('Expandir');
+    }
+}
+
+function togglePlayersSection() {
+    const $section = $('.players-section');
+    const $players = $('#players-grid');
+    const $icon = $('#players-toggle-icon');
+    const $text = $('#players-toggle-text');
+    
+    if ($players.hasClass('hidden')) {
+        // Expandir
+        $players.removeClass('hidden').addClass('grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6');
+        $section.removeClass('collapsed');
+        $icon.text('📐');
+        $text.text('Recolher');
+    } else {
+        // Recolher
+        $players.removeClass('grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6').addClass('hidden');
+        $section.addClass('collapsed');
+        $icon.text('👥');
+        $text.text('Expandir');
+    }
 }

@@ -447,12 +447,35 @@
         margin: 0 auto;
     }
     
-    #character-photo-url {
-        width: 6rem;
-    }
-    
-    /* Centralizar a foto em telas pequenas */
+    /* Centratar botões de foto em telas pequenas */
     .lg\\:items-start {
         align-items: center !important;
     }
+}
+
+/* Estilos para botões de upload de foto */
+#select-character-photo,
+#remove-character-photo {
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+}
+
+#select-character-photo:hover {
+    background-color: #0891b2;
+    transform: translateY(-1px);
+}
+
+#remove-character-photo:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.character-photo-container {
+    cursor: pointer;
+}
+
+.character-photo-container:hover {
+    border-color: #06B6D4 !important;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
 }

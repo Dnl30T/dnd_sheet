@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela do Mestre - D&D Future</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="gm-screen-flat.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#3B82F6',
+                        'secondary': '#6B7280',
+                        'success': '#10B981',
+                        'warning': '#F59E0B',
+                        'danger': '#EF4444',
+                        'info': '#06B6D4',
+                        'surface': '#F8FAFC',
+                        'surface-dark': '#1E293B',
+                        'surface-light': '#F1F5F9'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="text-white text-lg">🎲</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Tela do Mestre</h1>
+                        <p class="text-sm text-slate-600">Sistema D&D Future</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="refresh-players" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        <span class="text-sm">🔄 Atualizar</span>
+                    </button>
+                    <button id="toggle-auto-refresh" class="bg-warning text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors">
+                        <span class="text-sm">🔄 Auto: OFF</span>
+                    </button>
+                    <button id="add-player" class="bg-success text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors">
+                        <span class="text-sm">➕ Adicionar</span>
+                    </button>
+                    <a href="index.html" class="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors">
+                        <span class="text-sm">📋 Ficha</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Firebase Status -->
+            <div class="mt-2">
+                <div id="firebase-status" class="text-xs text-slate-500">
+                    <span id="firebase-indicator">🔄 Verificando conexão...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 py-6">
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <!-- Main Content -->
+            <div class="xl:col-span-3 space-y-6">
+                <!-- Character Photos Section -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-slate-900">📸 Status dos Personagens</h2>
+                        <button id="toggle-photos" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
+                            <span id="photos-toggle-text">Recolher</span>
+                        </button>
+                    </div>
+                    <div id="character-photos" class="p-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 transition-all duration-300">
+                        <!-- Character photos will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Players Section -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-slate-900">👥 Jogadores Ativos</h2>
+                        <div class="flex gap-3 items-center">
+                            <span id="player-count" class="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-lg">0 jogadores</span>
+                            <button id="toggle-players" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">
+                                <span id="players-toggle-text">Recolher</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="players-grid" class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-300">
+                        <!-- Player cards will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="xl:col-span-1">
+                <div class="sticky top-24 space-y-6">
+                    <!-- GM Reference Panel -->
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h2 class="text-lg font-semibold text-slate-900">📚 Referências</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <!-- Quick Rules -->
+                            <div>
+                                <h3 class="font-semibold text-slate-900 mb-2">⚡ Regras Rápidas</h3>
+                                <div class="text-sm space-y-1 text-slate-600">
+                                    <div><strong>CD Fácil:</strong> 10-11</div>
+                                    <div><strong>CD Médio:</strong> 12-15</div>
+                                    <div><strong>CD Difícil:</strong> 16-20</div>
+                                    <div><strong>CD Épico:</strong> 21+</div>
+                                </div>
+                            </div>
+
+                            <!-- Conditions -->
+                            <div>
+                                <h3 class="font-semibold text-slate-900 mb-2">🔴 Condições</h3>
+                                <div class="text-xs space-y-1 text-slate-600">
+                                    <div><strong>Cego:</strong> -5 ataques, falha auto em Percepção</div>
+                                    <div><strong>Envenenado:</strong> Desvantagem em ataques</div>
+                                    <div><strong>Incapacitado:</strong> Não pode realizar ações</div>
+                                    <div><strong>Paralizado:</strong> Incapacitado, falha auto</div>
+                                </div>
+                            </div>
+
+                            <!-- Initiative Tracker -->
+                            <div>
+                                <h3 class="font-semibold text-slate-900 mb-2">⚔️ Iniciativa</h3>
+                                <div id="initiative-list" class="space-y-1 text-sm mb-3">
+                                    <div class="text-slate-500 text-xs">Clique para rolar iniciativa</div>
+                                </div>
+                                <button id="roll-initiative" class="w-full bg-success text-white px-3 py-2 rounded-lg text-sm hover:bg-emerald-600">
+                                    🎲 Rolar Iniciativa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Tools -->
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h2 class="text-lg font-semibold text-slate-900">🛠️ Ferramentas</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <!-- Session Timer -->
+                            <div>
+                                <h3 class="font-semibold text-slate-900 mb-2">⏱️ Timer</h3>
+                                <div id="session-timer" class="text-2xl font-mono text-center bg-slate-100 rounded-lg p-3 mb-3">
+                                    00:00:00
+                                </div>
+                                <div class="flex gap-2">
+                                    <button id="start-timer" class="flex-1 bg-success text-white px-2 py-1 rounded text-xs hover:bg-emerald-600">▶️</button>
+                                    <button id="pause-timer" class="flex-1 bg-warning text-white px-2 py-1 rounded text-xs hover:bg-amber-600">⏸️</button>
+                                    <button id="reset-timer" class="flex-1 bg-danger text-white px-2 py-1 rounded text-xs hover:bg-red-600">⏹️</button>
+                                </div>
+                            </div>
+
+                            <!-- GM Notes -->
+                            <div>
+                                <h3 class="font-semibold text-slate-900 mb-2">📝 Notas</h3>
+                                <textarea id="gm-notes" 
+                                    class="w-full h-24 bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 resize-none focus:outline-none focus:border-primary"
+                                    placeholder="Notas da sessão..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Edit Modal -->
+    <div id="player-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl w-full max-w-lg border border-slate-200 shadow-xl">
+                <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-slate-900">✏️ Editar Jogador</h3>
+                    <button id="close-modal" class="text-slate-400 hover:text-slate-600">✕</button>
+                </div>
+                
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nome</label>
+                        <input type="text" id="edit-name" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                    </div>
+                    
+                    <!-- Photo Upload Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">📸 Foto do Personagem</label>
+                        <div class="flex gap-3 items-start">
+                            <div id="photo-preview" class="w-16 h-16 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 text-xl">
+                                👤
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" id="photo-upload" accept="image/*" class="hidden">
+                                <div class="flex gap-2">
+                                    <button type="button" id="select-photo" class="bg-primary text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-600">
+                                        📁 Selecionar
+                                    </button>
+                                    <button type="button" id="remove-photo" class="bg-danger text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600">
+                                        🗑️ Remover
+                                    </button>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">JPG, PNG, GIF (máx. 2MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">HP Atual</label>
+                            <input type="number" id="edit-current-hp" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">HP Máximo</label>
+                            <input type="number" id="edit-max-hp" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Blight (%)</label>
+                            <input type="number" id="edit-blight" min="0" max="100" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Rejeição (%)</label>
+                            <input type="number" id="edit-rejection" min="0" max="100" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Neural (%)</label>
+                            <input type="number" id="edit-neural" min="0" max="100" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">CA</label>
+                            <input type="number" id="edit-ac" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Iniciativa</label>
+                            <input type="number" id="edit-initiative" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+                    
+                    <!-- Condições -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Condições Ativas</label>
+                        <div id="conditions-container" class="space-y-2 mb-3 max-h-32 overflow-y-auto">
+                            <!-- Condições serão adicionadas dinamicamente aqui -->
+                        </div>
+                        <div class="flex gap-2">
+                            <select id="condition-select" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-primary">
+                                <option value="">Selecione uma condição...</option>
+                                <option value="Cego">Cego</option>
+                                <option value="Encantado">Encantado</option>
+                                <option value="Surdo">Surdo</option>
+                                <option value="Amedrontado">Amedrontado</option>
+                                <option value="Agarrado">Agarrado</option>
+                                <option value="Incapacitado">Incapacitado</option>
+                                <option value="Invisível">Invisível</option>
+                                <option value="Paralizado">Paralizado</option>
+                                <option value="Petrificado">Petrificado</option>
+                                <option value="Envenenado">Envenenado</option>
+                                <option value="Caído">Caído</option>
+                                <option value="Contido">Contido</option>
+                                <option value="Atordoado">Atordoado</option>
+                                <option value="Inconsciente">Inconsciente</option>
+                                <option value="Exausto">Exausto</option>
+                                <option value="Concentrando">Concentrando</option>
+                                <option value="Sangrando">Sangrando</option>
+                                <option value="Infectado">Infectado</option>
+                                <option value="Sobrecarga Neural">Sobrecarga Neural</option>
+                                <option value="Glitch Cibernético">Glitch Cibernético</option>
+                            </select>
+                            <button id="add-condition" type="button" class="bg-success text-white px-3 py-2 rounded-lg hover:bg-emerald-600">
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-slate-200 flex gap-3">
+                    <button id="save-player" class="flex-1 bg-success text-white py-2 rounded-lg hover:bg-emerald-600 font-medium">
+                        💾 Salvar
+                    </button>
+                    <button id="cancel-edit" class="flex-1 bg-slate-600 text-white py-2 rounded-lg hover:bg-slate-700 font-medium">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script src="gm-screen-flat.js"></script>
+</body>
+</html>

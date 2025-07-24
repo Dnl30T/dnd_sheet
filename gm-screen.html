@@ -97,58 +97,226 @@
         .notification.error { background: #EF4444; }
         .notification.warning { background: #F59E0B; }
         .notification.info { background: #06B6D4; }
+        
+        /* Character Photos Section - Usando principalmente Tailwind */
+        .character-photo-card {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border: 2px solid #2ECC71;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+        
+        .character-photo-card:hover {
+            transform: translateY(-6px);
+            border-color: #F59E0B;
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.3);
+        }
+        
+        .character-photos-section {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border-bottom: 2px solid #2ECC71;
+            transition: all 0.3s ease;
+        }
+        
+        .character-photos-section.collapsed {
+            border-bottom: 1px solid #4b5563;
+        }
+        
+        .players-section {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border: 2px solid #2ECC71;
+            transition: all 0.3s ease;
+        }
+        
+        .players-section.collapsed {
+            border-color: #4b5563;
+        }
+        
+        .player-card {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            border: 2px solid #2ECC71;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+        
+        .player-card:hover {
+            transform: translateY(-6px);
+            border-color: #F59E0B;
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* GM Reference Panel Fixed */
+        #gm-reference-panel {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            border: 2px solid #2ECC71;
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+            backdrop-filter: blur(10px);
+            z-index: 51;
+        }
+        
+        /* Toggle Buttons */
+        .toggle-btn {
+            background: linear-gradient(135deg, #2ECC71, #48bb78);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+        }
+        
+        .toggle-btn:hover {
+            background: linear-gradient(135deg, #F59E0B, #f6ad55);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .character-photo {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #374151, #4B5563);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #9CA3AF;
+        }
+        
+        .character-hp-section {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 8px;
+        }
+        
+        .character-name {
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .character-hp-bar {
+            height: 6px;
+            background: #374151;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 2px;
+        }
+        
+        .character-hp-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .character-hp-text {
+            font-size: 8px;
+            color: #D1D5DB;
+            text-align: center;
+        }
+        
+        .bg-gray-850 {
+            background-color: #1a202c;
+        }
+        
+        /* Photo Upload Preview */
+        #photo-preview {
+            transition: all 0.3s ease;
+        }
+        
+        #photo-preview:hover {
+            border-color: #06B6D4;
+        }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white min-h-screen font-sans antialiased">
     <!-- Header -->
-    <header class="bg-gray-800 border-b border-gray-700 p-4">
+    <header class="bg-gradient-to-r from-cinza-grafite to-gray-600 border-b-2 border-esmeralda p-6 shadow-2xl sticky top-0 z-50 backdrop-blur-lg">
         <div class="max-w-full mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-eletrico">🎲 TELA DO MESTRE</h1>
-                <p class="text-gray-400 text-sm">Sistema D&D Future - Controle de Sessão</p>
-                <div id="firebase-status" class="text-xs mt-1">
-                    <span id="firebase-indicator" class="text-gray-500">🔄 Verificando conexão...</span>
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-esmeralda to-green-600 p-3 rounded-xl shadow-lg">
+                    <span class="text-2xl">🎲</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-eletrico bg-gradient-to-r from-eletrico to-cyan-400 bg-clip-text text-transparent">
+                        TELA DO MESTRE
+                    </h1>
+                    <p class="text-prata-metalico text-sm font-medium">Sistema D&D Future - Controle de Sessão</p>
+                    <div id="firebase-status" class="text-xs mt-1">
+                        <span id="firebase-indicator" class="text-gray-400 font-mono">🔄 Verificando conexão...</span>
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button id="refresh-players" class="bg-eletrico text-white px-4 py-2 rounded hover:bg-cyan-600 transition-colors">
+            <div class="flex gap-3 items-center">
+                <button id="refresh-players" class="bg-gradient-to-r from-eletrico to-cyan-600 text-white px-5 py-3 rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🔄 Atualizar
                 </button>
-                <button id="toggle-auto-refresh" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition-colors">
+                <button id="toggle-auto-refresh" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-5 py-3 rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🔄 Auto-Atualizar: OFF
                 </button>
-                <button id="test-firebase-connection" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition-colors">
+                <button id="test-firebase-connection" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🧪 Testar Firebase
                 </button>
-                <button id="add-player" class="bg-esmeralda text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                <button id="add-player" class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-5 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     ➕ Adicionar Jogador
                 </button>
-                <a href="index.html" class="bg-roxo text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
+                <a href="index.html" class="bg-gradient-to-r from-roxo to-purple-700 text-white px-5 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     📋 Ficha Principal
                 </a>
             </div>
         </div>
     </header>
 
-    <div class="max-w-full mx-auto p-6">
-        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+    <!-- Character Photos Section -->
+    <div class="character-photos-section border-b border-gray-600 p-8 transition-all duration-300">
+        <div class="max-w-full mx-auto">
+            <div class="flex items-center mb-8">
+                <h2 class="text-2xl font-bold text-esmeralda flex items-center gap-3 px-4">
+                    📸 Status dos Personagens
+                </h2>
+                <button id="toggle-photos" class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <span id="photos-toggle-icon">📐</span> <span id="photos-toggle-text">Recolher</span>
+                </button>
+            </div>
+            <div id="character-photos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 justify-items-center transition-all duration-500">
+                <!-- Character photos with HP bars will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-full mx-auto p-8 bg-gradient-to-b from-transparent to-gray-900/50">
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
             <!-- Players Section -->
             <div class="xl:col-span-3">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-white">👥 Jogadores Ativos</h2>
-                    <span id="player-count" class="bg-gray-700 px-3 py-1 rounded text-sm">0 jogadores</span>
-                </div>
-                
-                <div id="players-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                    <!-- Player cards will be generated here -->
+                <div class="players-section rounded-2xl p-8 transition-all duration-300 shadow-xl">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-bold text-esmeralda flex items-center gap-3">
+                            👥 Jogadores Ativos
+                        </h2>
+                        <div class="flex gap-4 items-center">
+                            <span id="player-count" class="bg-gray-700 bg-opacity-80 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm border border-gray-600">0 jogadores</span>
+                            <button id="toggle-players" class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                <span id="players-toggle-icon">📐</span> <span id="players-toggle-text">Recolher</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="players-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 transition-all duration-500">
+                        <!-- Player cards will be generated here -->
+                    </div>
                 </div>
             </div>
 
             <!-- GM Reference Panel -->
             <div class="xl:col-span-1">
-                <div class="gm-reference rounded-lg p-6 text-white">
-                    <h2 class="text-lg font-semibold mb-4 text-eletrico">📚 Referências do Mestre</h2>
+                <div id="gm-reference-panel" class="xl:fixed xl:top-40 xl:right-6 xl:w-80 xl:max-h-[calc(100vh-120px)] overflow-y-auto rounded-2xl p-6 text-white z-40 shadow-2xl border-2 transition-all duration-300">
+                    <h2 class="text-xl font-bold mb-6 text-eletrico flex items-center gap-2">
+                        📚 Referências do Mestre
+                    </h2>
                     
                     <!-- Quick Rules -->
                     <div class="mb-6">
@@ -210,65 +378,89 @@
     </div>
 
     <!-- Player Edit Modal -->
-    <div id="player-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+    <div id="player-edit-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md hidden z-50 transition-all duration-300">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-600">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-white">✏️ Editar Jogador</h3>
-                    <button id="close-modal" class="text-gray-400 hover:text-white">✕</button>
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-lg border-2 border-esmeralda shadow-2xl transform transition-all duration-300">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-esmeralda flex items-center gap-2">
+                        ✏️ Editar Jogador
+                    </h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-white transition-colors text-2xl p-2 hover:bg-gray-700 rounded-lg">✕</button>
                 </div>
                 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Nome</label>
-                        <input type="text" id="edit-name" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Nome</label>
+                        <input type="text" id="edit-name" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300 backdrop-blur-sm">
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- Photo Upload Section -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-3">📸 Foto do Personagem</label>
+                        <div class="flex gap-4 items-start">
+                            <div id="photo-preview" class="w-20 h-20 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl flex items-center justify-center text-gray-400 text-2xl transition-all duration-300 hover:border-eletrico">
+                                👤
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" id="photo-upload" accept="image/*" class="hidden">
+                                <div class="flex gap-3">
+                                    <button type="button" id="select-photo" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md font-semibold">
+                                        📁 Selecionar
+                                    </button>
+                                    <button type="button" id="remove-photo" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md font-semibold">
+                                        🗑️ Remover
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 font-medium">Formatos: JPG, PNG, GIF (máx. 2MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">HP Atual</label>
-                            <input type="number" id="edit-current-hp" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">HP Atual</label>
+                            <input type="number" id="edit-current-hp" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">HP Máximo</label>
-                            <input type="number" id="edit-max-hp" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">HP Máximo</label>
+                            <input type="number" id="edit-max-hp" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Blight (%)</label>
-                            <input type="number" id="edit-blight" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Blight (%)</label>
+                            <input type="number" id="edit-blight" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Rejeição (%)</label>
-                            <input type="number" id="edit-rejection" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Rejeição (%)</label>
+                            <input type="number" id="edit-rejection" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Neural (%)</label>
-                            <input type="number" id="edit-neural" min="0" max="100" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Neural (%)</label>
+                            <input type="number" id="edit-neural" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">CA</label>
-                            <input type="number" id="edit-ac" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">CA</label>
+                            <input type="number" id="edit-ac" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1">Iniciativa</label>
-                            <input type="number" id="edit-initiative" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Iniciativa</label>
+                            <input type="number" id="edit-initiative" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
                     
                     <!-- Condições -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Condições Ativas</label>
-                        <div id="conditions-container" class="space-y-2 mb-2">
+                        <label class="block text-sm font-semibold text-gray-300 mb-3">Condições Ativas</label>
+                        <div id="conditions-container" class="space-y-2 mb-3 max-h-32 overflow-y-auto">
                             <!-- Condições serão adicionadas dinamicamente aqui -->
                         </div>
-                        <div class="flex gap-2">
-                            <select id="condition-select" class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:outline-none focus:border-eletrico">
+                        <div class="flex gap-3">
+                            <select id="condition-select" class="flex-1 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                                 <option value="">Selecione uma condição...</option>
                                 <option value="Cego">Cego</option>
                                 <option value="Encantado">Encantado</option>
@@ -291,18 +483,18 @@
                                 <option value="Sobrecarga Neural">Sobrecarga Neural</option>
                                 <option value="Glitch Cibernético">Glitch Cibernético</option>
                             </select>
-                            <button id="add-condition" type="button" class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 transition-colors">
+                            <button id="add-condition" type="button" class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md font-semibold">
                                 ➕
                             </button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="flex gap-3 mt-6">
-                    <button id="save-player" class="flex-1 bg-esmeralda text-white py-2 rounded hover:bg-green-600 transition-colors">
+                <div class="flex gap-4 mt-8">
+                    <button id="save-player" class="flex-1 bg-gradient-to-r from-esmeralda to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-bold shadow-lg">
                         💾 Salvar
                     </button>
-                    <button id="cancel-edit" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                    <button id="cancel-edit" class="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 font-bold shadow-lg">
                         ❌ Cancelar
                     </button>
                 </div>

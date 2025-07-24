@@ -97,7 +97,12 @@ function setupEventListeners() {
     });
     
     // Foto do personagem
-    $('#character-photo-url').on('input', updateCharacterPhoto);
+    $('#select-character-photo').on('click', function() {
+        $('#character-photo-upload').click();
+    });
+    
+    $('#character-photo-upload').on('change', handleCharacterPhotoUpload);
+    $('#remove-character-photo').on('click', removeCharacterPhoto);
     
     // Botões de ação
     $('.save-btn').on('click', saveCharacterData);
@@ -838,38 +843,48 @@ function updateNeuralOverload() {
     }
 }
 
-function updateCharacterPhoto() {
-    const photoUrl = $('#character-photo-url').val().trim();
+// Funções para gerenciar foto do personagem
+function handleCharacterPhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Verificar tamanho do arquivo (máx 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Arquivo muito grande! Máximo 2MB.');
+        return;
+    }
+    
+    // Verificar tipo do arquivo
+    if (!file.type.startsWith('image/')) {
+        alert('Arquivo deve ser uma imagem!');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        updateCharacterPhotoDisplay(e.target.result);
+        console.log('✅ Foto carregada com sucesso');
+    };
+    reader.readAsDataURL(file);
+}
+
+function updateCharacterPhotoDisplay(photoSrc) {
     const $photo = $('#character-photo');
     const $placeholder = $('#photo-placeholder');
     
-    if (photoUrl && isValidUrl(photoUrl)) {
-        // Testar se a URL é válida carregando a imagem
-        const testImg = new Image();
-        testImg.onload = function() {
-            $photo.attr('src', photoUrl).removeClass('hidden');
-            $placeholder.addClass('hidden');
-        };
-        testImg.onerror = function() {
-            // Se a imagem não carregar, mostrar placeholder
-            $photo.addClass('hidden');
-            $placeholder.removeClass('hidden');
-        };
-        testImg.src = photoUrl;
+    if (photoSrc) {
+        $photo.attr('src', photoSrc).removeClass('hidden');
+        $placeholder.addClass('hidden');
     } else {
-        // URL vazia ou inválida, mostrar placeholder
         $photo.addClass('hidden');
         $placeholder.removeClass('hidden');
     }
 }
 
-function isValidUrl(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
-    }
+function removeCharacterPhoto() {
+    updateCharacterPhotoDisplay(null);
+    $('#character-photo-upload').val('');
+    console.log('🗑️ Foto removida');
 }
 
 function setupHPTracking() {
@@ -1019,7 +1034,7 @@ async function saveCharacterData() {
     const characterData = {
         // Informações básicas
         name: $('#character-name').val(),
-        photoUrl: $('#character-photo-url').val(),
+        photo: $('#character-photo').attr('src') || null,
         classLevel: $('#class-level').val(),
         background: $('#background').val(),
         race: $('#race').val(),
@@ -1278,7 +1293,8 @@ function loadCharacterData() {
         
         // Carregar informações básicas
         $('#character-name').val(characterData.name || '');
-        $('#character-photo-url').val(characterData.photoUrl || '');
+        // Compatibilidade: tentar carregar 'photo' primeiro, depois 'photoUrl' (formato antigo)
+        updateCharacterPhotoDisplay(characterData.photo || characterData.photoUrl || null);
         $('#class-level').val(characterData.classLevel || '');
         $('#background').val(characterData.background || '');
         $('#race').val(characterData.race || '');
@@ -1389,7 +1405,6 @@ function loadCharacterData() {
         updateBlightIndicator();
         updateRejectionLevel();
         updateNeuralOverload();
-        updateCharacterPhoto();
         
         showNotification('Ficha carregada com sucesso!', 'success');
     } catch (error) {
@@ -1618,7 +1633,7 @@ async function loadCharacterFromFirebase(characterKey) {
 function loadCharacterFromData(characterData) {
     // Carregar informações básicas
     $('#character-name').val(characterData.name || '');
-    $('#character-photo-url').val(characterData.photoUrl || '');
+    updateCharacterPhotoDisplay(characterData.photo || characterData.photoUrl || null);
     $('#class-level').val(characterData.classLevel || '');
     $('#background').val(characterData.background || '');
     $('#race').val(characterData.race || '');
@@ -1702,9 +1717,6 @@ function loadCharacterFromData(characterData) {
         $('#point-buy-toggle').prop('checked', characterData.pointBuyActive);
         togglePointBuy();
     }
-    
-    // Atualizar foto
-    updateCharacterPhoto();
     
     // Atualizar todos os cálculos
     updateAllModifiers();
