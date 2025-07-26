@@ -1718,6 +1718,31 @@ function loadCharacterFromData(characterData) {
         togglePointBuy();
     }
     
+    // Carregar ataques
+    if (characterData.attacks && characterData.attacks.length > 0) {
+        // Limpar ataques existentes (exceto header)
+        $('.attack-row:not(.header)').remove();
+        
+        characterData.attacks.forEach(attack => {
+            const attackRow = `
+                <div class="attack-row">
+                    <input type="text" value="${attack.name || ''}" placeholder="Nome do ataque">
+                    <input type="text" value="${attack.bonus || ''}" placeholder="+5">
+                    <input type="text" value="${attack.damage || ''}" placeholder="1d8+3 cortante">
+                </div>
+            `;
+            $('.attacks-list').append(attackRow);
+        });
+    }
+    
+    // Carregar dados de magias
+    if (characterData.spellData) {
+        console.log('🔄 Carregando dados de magias do Firebase:', characterData.spellData);
+        loadSpellData(characterData.spellData);
+    } else {
+        console.log('⚠️ Nenhum dado de magia encontrado no personagem');
+    }
+    
     // Atualizar todos os cálculos
     updateAllModifiers();
     updateDependentStats();
@@ -1914,6 +1939,7 @@ function initializeSpellSystem() {
         // Event listener para quando o total de espaços mudar
         $(`#spell-slots-${level}-total`).on('input', function() {
             updateSpellDots(level);
+            saveSpellsToStorage(); // Salvar alterações
         });
     }
 }
@@ -1938,6 +1964,12 @@ function setupSpellEventListeners() {
     // Auto-cálculo da CD de magia e bônus de ataque
     $('#spellcasting-ability').on('change', function() {
         updateSpellcastingStats();
+        saveSpellsToStorage(); // Salvar alterações
+    });
+    
+    // Salvar alterações nos campos de conjuração
+    $('#spell-save-dc, #spell-attack-bonus, #cantrips-known').on('input', function() {
+        saveSpellsToStorage();
     });
     
     // Atualizar quando modificadores mudarem
@@ -1963,6 +1995,7 @@ function addNewSpell() {
     
     characterSpells.push(newSpell);
     updateSpellDisplay();
+    saveSpellsToStorage(); // Salvar alterações
     
     // Focar no campo nome da nova magia
     setTimeout(() => {
@@ -1974,6 +2007,7 @@ function addNewSpell() {
 function removeSpell(spellId) {
     characterSpells = characterSpells.filter(spell => spell.id !== spellId);
     updateSpellDisplay();
+    saveSpellsToStorage(); // Salvar alterações
     showNotification('Magia removida', 'info');
 }
 
@@ -2105,6 +2139,7 @@ function updateSpellField(spellId, field, value) {
     const spell = characterSpells.find(s => s.id == spellId);
     if (spell) {
         spell[field] = value;
+        saveSpellsToStorage(); // Salvar alterações
         
         // Se mudou o nível, atualizar cor
         if (field === 'level') {
@@ -2122,6 +2157,7 @@ function toggleSpellPrepared(spellId) {
     if (spell) {
         spell.prepared = !spell.prepared;
         updateSpellDisplay();
+        saveSpellsToStorage(); // Salvar alterações
     }
 }
 
@@ -2180,6 +2216,9 @@ function longRest() {
         updateSpellDots(level);
     }
     
+    // Salvar alterações
+    saveSpellsToStorage();
+    
     showNotification('🌙 Descanso longo realizado! Espaços de magia restaurados.', 'success');
 }
 
@@ -2229,6 +2268,9 @@ function toggleSpellSlot(level, slotIndex) {
         }
         $(`#spell-slots-${level}-used`).val(slotIndex + 1);
     }
+    
+    // Salvar alterações
+    saveSpellsToStorage();
     
     // Efeito visual ao clicar
     dot.addClass('focused');
@@ -2314,10 +2356,13 @@ function includeSpellsInSave() {
 function loadSpellData(spellData) {
     if (!spellData) return;
     
+    console.log('📚 Carregando dados de magias:', spellData);
+    
     // Carregar magias
     if (spellData.spells) {
         characterSpells = spellData.spells;
         updateSpellDisplay();
+        console.log('✨ Magias carregadas:', characterSpells.length);
     }
     
     // Carregar configurações de conjuração
