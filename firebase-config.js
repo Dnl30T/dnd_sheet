@@ -128,15 +128,19 @@ const FirebaseUtils = {
     },
 
     // Carregar personagem do Firestore
-    async loadCharacter(characterName) {
-        console.log('📖 Tentando carregar personagem do Firestore:', characterName);
+    async loadCharacter(characterKey) {
+        console.log('📖 Tentando carregar personagem do Firestore:', characterKey);
         
         try {
-            const characterKey = this.sanitizeKey(characterName);
-            console.log('🔑 Chave sanitizada para busca:', characterKey);
+            // Se a chave já parece sanitizada (contém apenas letras, números e hífens), usar diretamente
+            // Caso contrário, sanitizar
+            const finalKey = /^[a-z0-9-]+$/.test(characterKey) ? characterKey : this.sanitizeKey(characterKey);
+            console.log('🔑 Chave original:', characterKey);
+            console.log('🔑 Chave final para busca:', finalKey);
+            console.log('🔍 Teste regex /^[a-z0-9-]+$/:', /^[a-z0-9-]+$/.test(characterKey));
             
             console.log('📡 Buscando no Firestore...');
-            const doc = await charactersCollection.doc(characterKey).get();
+            const doc = await charactersCollection.doc(finalKey).get();
             
             if (doc.exists) {
                 const data = doc.data();
@@ -226,8 +230,9 @@ const FirebaseUtils = {
         return name
             .toLowerCase()
             .trim()
-            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '') // Permitir hífens também
             .replace(/\s+/g, '-')
+            .replace(/-+/g, '-') // Substituir múltiplos hífens por um único
             .substring(0, 50);
     },
 
