@@ -31,51 +31,92 @@
             transition: all 0.3s ease;
             border: 2px solid transparent;
         }
-        
+
         .player-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             border-color: #06B6D4;
         }
-        
+
         .status-bar {
             transition: all 0.3s ease;
             border-radius: 10px;
             overflow: hidden;
         }
-        
-        .hp-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
-        .hp-warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
-        .hp-healthy { background: linear-gradient(90deg, #10B981, #34D399); }
-        
-        .blight-low { background: linear-gradient(90deg, #10B981, #34D399); }
-        .blight-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
-        .blight-high { background: linear-gradient(90deg, #F97316, #FB923C); }
-        .blight-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
-        
-        .rejection-low { background: linear-gradient(90deg, #10B981, #34D399); }
-        .rejection-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
-        .rejection-high { background: linear-gradient(90deg, #F97316, #FB923C); }
-        .rejection-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
-        
-        .neural-low { background: linear-gradient(90deg, #06B6D4, #67E8F9); }
-        .neural-medium { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
-        .neural-high { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
-        .neural-critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
-        
+
+        .hp-critical {
+            background: linear-gradient(90deg, #DC2626, #EF4444);
+        }
+
+        .hp-warning {
+            background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        }
+
+        .hp-healthy {
+            background: linear-gradient(90deg, #10B981, #34D399);
+        }
+
+        .blight-low {
+            background: linear-gradient(90deg, #10B981, #34D399);
+        }
+
+        .blight-medium {
+            background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        }
+
+        .blight-high {
+            background: linear-gradient(90deg, #F97316, #FB923C);
+        }
+
+        .blight-critical {
+            background: linear-gradient(90deg, #DC2626, #EF4444);
+        }
+
+        .rejection-low {
+            background: linear-gradient(90deg, #10B981, #34D399);
+        }
+
+        .rejection-medium {
+            background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        }
+
+        .rejection-high {
+            background: linear-gradient(90deg, #F97316, #FB923C);
+        }
+
+        .rejection-critical {
+            background: linear-gradient(90deg, #DC2626, #EF4444);
+        }
+
+        .neural-low {
+            background: linear-gradient(90deg, #06B6D4, #67E8F9);
+        }
+
+        .neural-medium {
+            background: linear-gradient(90deg, #3B82F6, #60A5FA);
+        }
+
+        .neural-high {
+            background: linear-gradient(90deg, #8B5CF6, #A78BFA);
+        }
+
+        .neural-critical {
+            background: linear-gradient(90deg, #DC2626, #EF4444);
+        }
+
         .gm-reference {
             background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
         }
-        
+
         .quick-edit {
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .player-card:hover .quick-edit {
             opacity: 1;
         }
-        
+
         .notification {
             position: fixed;
             top: 20px;
@@ -88,16 +129,27 @@
             transform: translateX(400px);
             transition: transform 0.3s ease;
         }
-        
+
         .notification.show {
             transform: translateX(0);
         }
-        
-        .notification.success { background: #10B981; }
-        .notification.error { background: #EF4444; }
-        .notification.warning { background: #F59E0B; }
-        .notification.info { background: #06B6D4; }
-        
+
+        .notification.success {
+            background: #10B981;
+        }
+
+        .notification.error {
+            background: #EF4444;
+        }
+
+        .notification.warning {
+            background: #F59E0B;
+        }
+
+        .notification.info {
+            background: #06B6D4;
+        }
+
         /* Character Photos Section - Usando principalmente Tailwind */
         .character-photo-card {
             background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
@@ -105,46 +157,46 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
         }
-        
+
         .character-photo-card:hover {
             transform: translateY(-6px);
             border-color: #F59E0B;
             box-shadow: 0 12px 30px rgba(245, 158, 11, 0.3);
         }
-        
+
         .character-photos-section {
             background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
             border-bottom: 2px solid #2ECC71;
             transition: all 0.3s ease;
         }
-        
+
         .character-photos-section.collapsed {
             border-bottom: 1px solid #4b5563;
         }
-        
+
         .players-section {
             background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
             border: 2px solid #2ECC71;
             transition: all 0.3s ease;
         }
-        
+
         .players-section.collapsed {
             border-color: #4b5563;
         }
-        
+
         .player-card {
             background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
             border: 2px solid #2ECC71;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
         }
-        
+
         .player-card:hover {
             transform: translateY(-6px);
             border-color: #F59E0B;
             box-shadow: 0 15px 35px rgba(245, 158, 11, 0.3);
         }
-        
+
         /* GM Reference Panel Fixed */
         #gm-reference-panel {
             background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
@@ -153,19 +205,19 @@
             backdrop-filter: blur(10px);
             z-index: 51;
         }
-        
+
         /* Toggle Buttons */
         .toggle-btn {
             background: linear-gradient(135deg, #2ECC71, #48bb78);
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
         }
-        
+
         .toggle-btn:hover {
             background: linear-gradient(135deg, #F59E0B, #f6ad55);
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
-        
+
         .character-photo {
             width: 100%;
             height: 140px;
@@ -177,7 +229,7 @@
             font-size: 2rem;
             color: #9CA3AF;
         }
-        
+
         .character-hp-section {
             position: absolute;
             bottom: 0;
@@ -186,7 +238,7 @@
             background: rgba(0, 0, 0, 0.9);
             padding: 8px;
         }
-        
+
         .character-name {
             font-size: 10px;
             font-weight: 600;
@@ -197,7 +249,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .character-hp-bar {
             height: 6px;
             background: #374151;
@@ -205,28 +257,28 @@
             overflow: hidden;
             margin-bottom: 2px;
         }
-        
+
         .character-hp-fill {
             height: 100%;
             transition: width 0.3s ease;
             border-radius: 3px;
         }
-        
+
         .character-hp-text {
             font-size: 8px;
             color: #D1D5DB;
             text-align: center;
         }
-        
+
         .bg-gray-850 {
             background-color: #1a202c;
         }
-        
+
         /* Photo Upload Preview */
         #photo-preview {
             transition: all 0.3s ease;
         }
-        
+
         #photo-preview:hover {
             border-color: #06B6D4;
         }
@@ -235,14 +287,16 @@
 
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white min-h-screen font-sans antialiased">
     <!-- Header -->
-    <header class="bg-gradient-to-r from-cinza-grafite to-gray-600 border-b-2 border-esmeralda p-6 shadow-2xl sticky top-0 z-50 backdrop-blur-lg">
+    <header
+        class="bg-gradient-to-r from-cinza-grafite to-gray-600 border-b-2 border-esmeralda p-6 shadow-2xl sticky top-0 z-50 backdrop-blur-lg">
         <div class="max-w-full mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="bg-gradient-to-br from-esmeralda to-green-600 p-3 rounded-xl shadow-lg">
                     <span class="text-2xl">🎲</span>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-black text-eletrico bg-gradient-to-r from-eletrico to-cyan-400 bg-clip-text text-transparent">
+                    <h1
+                        class="text-3xl font-black text-eletrico bg-gradient-to-r from-eletrico to-cyan-400 bg-clip-text text-transparent">
                         TELA DO MESTRE
                     </h1>
                     <p class="text-prata-metalico text-sm font-medium">Sistema D&D Future - Controle de Sessão</p>
@@ -252,19 +306,24 @@
                 </div>
             </div>
             <div class="flex gap-3 items-center">
-                <button id="refresh-players" class="bg-gradient-to-r from-eletrico to-cyan-600 text-white px-5 py-3 rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
+                <button id="refresh-players"
+                    class="bg-gradient-to-r from-eletrico to-cyan-600 text-white px-5 py-3 rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🔄 Atualizar
                 </button>
-                <button id="toggle-auto-refresh" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-5 py-3 rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
+                <button id="toggle-auto-refresh"
+                    class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-5 py-3 rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🔄 Auto-Atualizar: OFF
                 </button>
-                <button id="test-firebase-connection" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
+                <button id="test-firebase-connection"
+                    class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     🧪 Testar Firebase
                 </button>
-                <button id="add-player" class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-5 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
+                <button id="add-player"
+                    class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-5 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     ➕ Adicionar Jogador
                 </button>
-                <a href="index.html" class="bg-gradient-to-r from-roxo to-purple-700 text-white px-5 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
+                <a href="index.html"
+                    class="bg-gradient-to-r from-roxo to-purple-700 text-white px-5 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg transform hover:-translate-y-1 font-semibold">
                     📋 Ficha Principal
                 </a>
             </div>
@@ -278,11 +337,13 @@
                 <h2 class="text-2xl font-bold text-esmeralda flex items-center gap-3 px-4">
                     📸 Status dos Personagens
                 </h2>
-                <button id="toggle-photos" class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <button id="toggle-photos"
+                    class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     <span id="photos-toggle-icon">📐</span> <span id="photos-toggle-text">Recolher</span>
                 </button>
             </div>
-            <div id="character-photos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 justify-items-center transition-all duration-500">
+            <div id="character-photos"
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 justify-items-center transition-all duration-500">
                 <!-- Character photos with HP bars will be generated here -->
             </div>
         </div>
@@ -298,14 +359,18 @@
                             👥 Jogadores Ativos
                         </h2>
                         <div class="flex gap-4 items-center">
-                            <span id="player-count" class="bg-gray-700 bg-opacity-80 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm border border-gray-600">0 jogadores</span>
-                            <button id="toggle-players" class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <span id="player-count"
+                                class="bg-gray-700 bg-opacity-80 px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm border border-gray-600">0
+                                jogadores</span>
+                            <button id="toggle-players"
+                                class="toggle-btn text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 <span id="players-toggle-icon">📐</span> <span id="players-toggle-text">Recolher</span>
                             </button>
                         </div>
                     </div>
-                    
-                    <div id="players-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 transition-all duration-500">
+
+                    <div id="players-grid"
+                        class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 transition-all duration-500">
                         <!-- Player cards will be generated here -->
                     </div>
                 </div>
@@ -313,11 +378,12 @@
 
             <!-- GM Reference Panel -->
             <div class="xl:col-span-1">
-                <div id="gm-reference-panel" class="xl:fixed xl:top-40 xl:right-6 xl:w-80 xl:max-h-[calc(100vh-120px)] overflow-y-auto rounded-2xl p-6 text-white z-40 shadow-2xl border-2 transition-all duration-300">
+                <div id="gm-reference-panel"
+                    class="xl:fixed xl:top-40 xl:right-6 xl:w-80 xl:max-h-[calc(100vh-120px)] overflow-y-auto rounded-2xl p-6 text-white z-40 shadow-2xl border-2 transition-all duration-300">
                     <h2 class="text-xl font-bold mb-6 text-eletrico flex items-center gap-2">
                         📚 Referências do Mestre
                     </h2>
-                    
+
                     <!-- Quick Rules -->
                     <div class="mb-6">
                         <h3 class="font-semibold mb-2 text-yellow-400">⚡ Regras Rápidas</h3>
@@ -338,6 +404,21 @@
                             <div><strong>Incapacitado:</strong> Não pode realizar ações</div>
                             <div><strong>Paralizado:</strong> Incapacitado, falha auto em For/Des</div>
                             <div><strong>Atordoado:</strong> Incapacitado, falha auto em Des</div>
+                            <div><strong>Amedrontado:</strong> Não pode se mover na direção da fonte do medo,
+                                desvantagem em ataques enquanto a fonte estiver visível</div>
+                            <div><strong>Restrito:</strong> Velocidade 0, desvantagem em testes de Força e Destreza
+                            </div>
+                            <div><strong>Inconsciente:</strong> Incapacitado, solta armas, falha auto em For/Des,
+                                ataques contra têm vantagem (críticos se adjacente)</div>
+                            <div><strong>Caído:</strong> Desvantagem em ataques corpo a corpo, vantagem contra por
+                                ataques corpo a corpo</div>
+                            <div><strong>Exausto:</strong> Penalidades cumulativas por níveis — desvantagens em testes,
+                                redução de velocidade, etc.</div>
+                            <div><strong>Charmado:</strong> Não pode atacar o encantador ou usar habilidades
+                                prejudiciais contra ele</div>
+                            <div><strong>Contido:</strong> Velocidade 0, desvantagem em ataques e em testes de
+                                Força/Destreza para escapar</div>
+                            <div><strong>Surdo:</strong> Falha auto em testes de Percepção auditiva</div>
                         </div>
                     </div>
 
@@ -347,7 +428,8 @@
                         <div id="initiative-list" class="space-y-1 text-sm">
                             <div class="text-gray-400 text-xs">Clique em "Rolar Iniciativa" para começar</div>
                         </div>
-                        <button id="roll-initiative" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
+                        <button id="roll-initiative"
+                            class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
                             🎲 Rolar Iniciativa
                         </button>
                     </div>
@@ -355,7 +437,7 @@
                     <!-- Quick Notes -->
                     <div class="mb-6">
                         <h3 class="font-semibold mb-2 text-purple-400">📝 Notas Rápidas</h3>
-                        <textarea id="gm-notes" 
+                        <textarea id="gm-notes"
                             class="w-full h-24 bg-gray-800 border border-gray-600 rounded p-2 text-sm text-white resize-none focus:outline-none focus:border-eletrico"
                             placeholder="Notas da sessão..."></textarea>
                     </div>
@@ -367,9 +449,12 @@
                             00:00:00
                         </div>
                         <div class="flex gap-2 mt-2">
-                            <button id="start-timer" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">▶️</button>
-                            <button id="pause-timer" class="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700">⏸️</button>
-                            <button id="reset-timer" class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">⏹️</button>
+                            <button id="start-timer"
+                                class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">▶️</button>
+                            <button id="pause-timer"
+                                class="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700">⏸️</button>
+                            <button id="reset-timer"
+                                class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">⏹️</button>
                         </div>
                     </div>
                 </div>
@@ -378,36 +463,43 @@
     </div>
 
     <!-- Player Edit Modal -->
-    <div id="player-edit-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md hidden z-50 transition-all duration-300">
+    <div id="player-edit-modal"
+        class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md hidden z-50 transition-all duration-300">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-lg border-2 border-esmeralda shadow-2xl transform transition-all duration-300">
+            <div
+                class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-lg border-2 border-esmeralda shadow-2xl transform transition-all duration-300">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-2xl font-bold text-esmeralda flex items-center gap-2">
                         ✏️ Editar Jogador
                     </h3>
-                    <button id="close-modal" class="text-gray-400 hover:text-white transition-colors text-2xl p-2 hover:bg-gray-700 rounded-lg">✕</button>
+                    <button id="close-modal"
+                        class="text-gray-400 hover:text-white transition-colors text-2xl p-2 hover:bg-gray-700 rounded-lg">✕</button>
                 </div>
-                
+
                 <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Nome</label>
-                        <input type="text" id="edit-name" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300 backdrop-blur-sm">
+                        <input type="text" id="edit-name"
+                            class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300 backdrop-blur-sm">
                     </div>
-                    
+
                     <!-- Photo Upload Section -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-3">📸 Foto do Personagem</label>
                         <div class="flex gap-4 items-start">
-                            <div id="photo-preview" class="w-20 h-20 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl flex items-center justify-center text-gray-400 text-2xl transition-all duration-300 hover:border-eletrico">
+                            <div id="photo-preview"
+                                class="w-20 h-20 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl flex items-center justify-center text-gray-400 text-2xl transition-all duration-300 hover:border-eletrico">
                                 👤
                             </div>
                             <div class="flex-1">
                                 <input type="file" id="photo-upload" accept="image/*" class="hidden">
                                 <div class="flex gap-3">
-                                    <button type="button" id="select-photo" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md font-semibold">
+                                    <button type="button" id="select-photo"
+                                        class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md font-semibold">
                                         📁 Selecionar
                                     </button>
-                                    <button type="button" id="remove-photo" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md font-semibold">
+                                    <button type="button" id="remove-photo"
+                                        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md font-semibold">
                                         🗑️ Remover
                                     </button>
                                 </div>
@@ -415,44 +507,51 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">HP Atual</label>
-                            <input type="number" id="edit-current-hp" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-current-hp"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">HP Máximo</label>
-                            <input type="number" id="edit-max-hp" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-max-hp"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">Blight (%)</label>
-                            <input type="number" id="edit-blight" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-blight" min="0" max="100"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">Rejeição (%)</label>
-                            <input type="number" id="edit-rejection" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-rejection" min="0" max="100"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">Neural (%)</label>
-                            <input type="number" id="edit-neural" min="0" max="100" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-neural" min="0" max="100"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">CA</label>
-                            <input type="number" id="edit-ac" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-ac"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">Iniciativa</label>
-                            <input type="number" id="edit-initiative" class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <input type="number" id="edit-initiative"
+                                class="w-full bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                         </div>
                     </div>
-                    
+
                     <!-- Condições -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-300 mb-3">Condições Ativas</label>
@@ -460,7 +559,8 @@
                             <!-- Condições serão adicionadas dinamicamente aqui -->
                         </div>
                         <div class="flex gap-3">
-                            <select id="condition-select" class="flex-1 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
+                            <select id="condition-select"
+                                class="flex-1 bg-gray-700 bg-opacity-80 border-2 border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-eletrico transition-all duration-300">
                                 <option value="">Selecione uma condição...</option>
                                 <option value="Cego">Cego</option>
                                 <option value="Encantado">Encantado</option>
@@ -483,18 +583,21 @@
                                 <option value="Sobrecarga Neural">Sobrecarga Neural</option>
                                 <option value="Glitch Cibernético">Glitch Cibernético</option>
                             </select>
-                            <button id="add-condition" type="button" class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md font-semibold">
+                            <button id="add-condition" type="button"
+                                class="bg-gradient-to-r from-esmeralda to-green-600 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md font-semibold">
                                 ➕
                             </button>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-4 mt-8">
-                    <button id="save-player" class="flex-1 bg-gradient-to-r from-esmeralda to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-bold shadow-lg">
+                    <button id="save-player"
+                        class="flex-1 bg-gradient-to-r from-esmeralda to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-bold shadow-lg">
                         💾 Salvar
                     </button>
-                    <button id="cancel-edit" class="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 font-bold shadow-lg">
+                    <button id="cancel-edit"
+                        class="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 font-bold shadow-lg">
                         ❌ Cancelar
                     </button>
                 </div>
